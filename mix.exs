@@ -6,8 +6,6 @@ defmodule Gogs.MixProject do
       app: :gogs,
       version: "0.1.0",
       elixir: "~> 1.13",
-      elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
@@ -33,8 +31,13 @@ defmodule Gogs.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # Check environment variables: github.com/dwyl/envar
+      {:envar, "~> 1.0.5"},
 
-      # Check test coverage
+      # Git interface: github.com/danhper/elixir-git-cli
+      {:git_cli, "~> 0.3"},
+
+      # Check test coverage: github.com/parroty/excoveralls
       {:excoveralls, "~> 0.14.3", only: :test},
 
       # Create Documentation for publishing Hex.docs:
@@ -44,8 +47,7 @@ defmodule Gogs.MixProject do
 
   defp aliases do
     [
-      c: ["coveralls.html"],
-      "cover.html": ["coveralls.html"],
+      c: ["coveralls.html"]
     ]
   end
 

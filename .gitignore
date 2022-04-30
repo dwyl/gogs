@@ -24,3 +24,8 @@ gogs-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Don't accidentally commit real environment variables
+.env
+
+/public_repo

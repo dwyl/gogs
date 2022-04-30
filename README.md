@@ -31,7 +31,20 @@ def deps do
 end
 ```
 
+<!--
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at <https://hexdocs.pm/gogs>.
+-->
 
+## Function Roadmap
+
++ [ ] Connect to Git Endpoint - perhaps a proxy for this is having access to a know repository.
++ [ ] Create or `Org` this might only be done via the API.
+
+
+Continue: 
++ [ ] New Access token: https://gogs-server.fly.dev/user/settings/applications
++ [ ] New terminal: `cd /Users/n/code/gogs-server && codium .`
++ [ ] New terminal: `cd /Users/n/code/elixir-auth-github && atom .`
++ [ ] Publish: https://hex.pm/packages/gogs
