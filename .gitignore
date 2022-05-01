@@ -29,3 +29,5 @@ gogs-*.tar
 .env
 
 /public_repo
+/public_repo/
+/public_repo/*

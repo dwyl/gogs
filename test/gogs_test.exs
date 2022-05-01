@@ -2,15 +2,27 @@ defmodule GogsTest do
   use ExUnit.Case
   doctest Gogs
 
+  def delete_local_directory(name) do
+    
+  end
+
+  @github_url "https://github.com/"
+
   test "make_url/2 (without port) returns a valid GitHub Base URL" do
     url = "github.com"
     git_url = Gogs.make_url(url)
     assert git_url == "git@github.com:"
   end
 
-  test "make_url/2returns a valid Gogs (Fly.io) Base URL" do
+  test "make_url/2 returns a valid Gogs (Fly.io) Base URL" do
     git_url = Gogs.make_url("gogs-server.fly.dev", "10022")
     assert git_url == "ssh://git@gogs-server.fly.dev:10022/"
+  end
+
+  test "remote_url/3 returns a valid Gogs (Fly.io) remote URL" do
+    git_url = Gogs.make_url("gogs-server.fly.dev", "10022")
+    remote_url = Gogs.remote_url(git_url, "nelsonic", "public-repo")
+    assert remote_url == "ssh://git@gogs-server.fly.dev:10022/nelsonic/public-repo.git"
   end
 
   test "Gogs.create_org creates a new organisation on the Gogs instance" do

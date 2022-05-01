@@ -12,7 +12,8 @@ defmodule Gogs.MixProject do
       preferred_cli_env: [
         c: :test,
         coveralls: :test,
-        "coveralls.html": :test
+        "coveralls.html": :test,
+        "coveralls.json": :test
       ],
       aliases: aliases(),
       deps: deps(),
@@ -31,6 +32,12 @@ defmodule Gogs.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # Make HTTP Requests: github.com/edgurgel/httpoison
+      {:httpoison, "~> 1.8.0"},
+
+      # Parse JSON data: github.com/michalmuskala/jason
+      {:jason, "~> 1.2"},
+
       # Check environment variables: github.com/dwyl/envar
       {:envar, "~> 1.0.5"},
 
@@ -38,7 +45,7 @@ defmodule Gogs.MixProject do
       {:git_cli, "~> 0.3"},
 
       # Check test coverage: github.com/parroty/excoveralls
-      {:excoveralls, "~> 0.14.3", only: :test},
+      {:excoveralls, "~> 0.14.4", only: :test},
 
       # Create Documentation for publishing Hex.docs:
       {:ex_doc, "~> 0.28", only: :dev},
