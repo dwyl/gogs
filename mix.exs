@@ -1,11 +1,13 @@
 defmodule Gogs.MixProject do
   use Mix.Project
 
+  @elixir_requirement "~> 1.9"
+
   def project do
     [
       app: :gogs,
       version: "0.1.0",
-      elixir: "~> 1.13",
+      elixir: @elixir_requirement,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
