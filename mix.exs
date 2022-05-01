@@ -51,6 +51,9 @@ defmodule Gogs.MixProject do
 
       # Create Documentation for publishing Hex.docs:
       {:ex_doc, "~> 0.28", only: :dev},
+
+      # Keep Code Tidy: https://github.com/rrrene/credo
+      {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
     ]
   end
 

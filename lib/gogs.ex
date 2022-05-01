@@ -9,7 +9,6 @@ defmodule Gogs do
   but sadly, some things cannot be done via `Git` or `REST`
   so we have adopted a "hybrid" approach.
   """
-  Envar.load(".env")
 
   @httpoison (Application.compile_env(:gogs, :httpoison_mock) &&
                 Gogs.HTTPoisonMock) || HTTPoison
@@ -52,9 +51,8 @@ defmodule Gogs do
 
 
   @doc """
-  make_url/0 constructs the URL based on the supplied git `url` and TCP `port`
-  returns the remote url for cloning.
-  If the `port` is set it will be a custom Gogs instance.
+  clone/1 clones a remote git repository based on `git_repo_url`
+  returns the path of the _local_ copy of the repository.
 
   """ 
   def clone(git_repo_url) do
