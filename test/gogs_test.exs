@@ -34,6 +34,18 @@ defmodule GogsTest do
     assert response == {:ok, mock_response}
   end
 
+  # can you think of a better way of testing/simulating this error condition? 
+  test "parse_body_response({:error, err})" do
+    assert Gogs.parse_body_response({:error, "err"}) == {:error, "err"}
+  end
+
+  # We've seen an empty body returned in practice. But how to test it ...? 
+  test "parse_body_response({:ok, response}) with empty/nil body" do
+    response = %{body: ""}
+    assert Gogs.parse_body_response({:ok, response}) == {:error, :no_body}
+  end
+
+  
   
 
   # test "Gogs.create_org creates a new organisation on the Gogs instance" do
