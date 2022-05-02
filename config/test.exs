@@ -1,6 +1,5 @@
 import Config
 
+# set this to false if you want to hit the actual endpoints during development:
 config :gogs,
-  # client_id: "d6fca75c63daa014c187",
-  # client_secret: "8eeb143935d1a505692aaef856db9b4da8245f3c",
-  httpoison_mock: false
+  httpoison_mock: true

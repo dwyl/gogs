@@ -30,10 +30,8 @@ defmodule GogsTest do
     org_name = "myorg"
     repo_name = "test-repo" <> Integer.to_string(System.unique_integer([:positive]))
     response = Gogs.remote_repo_create(org_name, repo_name, false)
-    IO.inspect(response)
-
-
-    assert true == true
+    mock_response = Gogs.HTTPoisonMock.make_repo_create_post_response_body(repo_name)
+    assert response == {:ok, mock_response}
   end
 
   

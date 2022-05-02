@@ -4,8 +4,8 @@
 
 Interface with ***`gogs`*** from **`Elixir`**.
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/gogs/Elixir%20CI?label=build&style=flat-square)
-[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/gogs/master.svg?style=flat-square)](http://codecov.io/github/dwyl/auth?branch=main)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/gogs/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/gogs/actions/workflows/ci.yml)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/gogs/master.svg?style=flat-square)](http://codecov.io/github/dwyl/gogs?branch=main)
 [![Hex.pm](https://img.shields.io/hexpm/v/gogs?color=brightgreen&style=flat-square)](https://hex.pm/packages/auth)
 [![Libraries.io dependency status](https://img.shields.io/librariesio/release/hex/gogs?logoColor=brightgreen&style=flat-square)](https://libraries.io/hex/gogs)
 [![docs](https://img.shields.io/badge/docs-maintained-brightgreen?style=flat-square)](https://hexdocs.pm/gogs/api-reference.html)
@@ -17,9 +17,26 @@ Interface with ***`gogs`*** from **`Elixir`**.
 
 </div>
 
+## Why?
+
+We needed a way of _easily_ to interact 
+with our **`Gogs`** (GitHub Backup) **Server**
+from our **`Elixir`** / **`Phoenix`** Applications.
+This package is that interface. 
+
+## What?
+
+
+## Who?
+
+
+## _How_?
+
+
+
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), 
+Install the package from [hex.pm](https://hex.pm/docs/publish), 
 the package can be installed
 by adding `gogs` to your list of dependencies in `mix.exs`:
 

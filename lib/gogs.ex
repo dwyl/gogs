@@ -73,8 +73,6 @@ defmodule Gogs do
       {:ok, str_key_map} = Jason.decode(body)
       {:ok, Useful.atomize_map_keys(str_key_map)}
     end
-
-    # https://stackoverflow.com/questions/31990134
   end
 
   @doc """
@@ -82,6 +80,7 @@ defmodule Gogs do
   """
   @spec post(String.t(), map) :: {:ok, map} | {:error, any}
   def post(url, params \\ %{}) do
+    # IO.inspect(url, label: url)
     body = Jason.encode!(params)
     headers = [
       {"Accept", "application/json"},
@@ -102,10 +101,11 @@ defmodule Gogs do
   """
   def remote_repo_create(org_name, repo_name, private \\ false) do
     url = @api_base_url <> "org/#{org_name}/repos"
-    IO.inspect(url, label: "remote repo url")
+    # IO.inspect(url, label: "remote_repo_create url")
     params = %{
       name: repo_name,
-      private: private
+      private: private,
+      description: repo_name
     }
     post(url, params)
   end
@@ -115,7 +115,7 @@ defmodule Gogs do
   returns the path of the _local_ copy of the repository.
   """ 
   def clone(git_repo_url) do
-    IO.inspect("git clone #{git_repo_url}")
+    # IO.inspect("git clone #{git_repo_url}")
     case Git.clone(git_repo_url)  do
       {:ok, %Git.Repository{path: path}} ->
         # IO.inspect(path)

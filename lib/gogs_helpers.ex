@@ -3,7 +3,7 @@ defmodule GogsHelpers do
   `api_base_url/0` returns the `Gogs` Server REST API url for API requests.
 
   ## Examples
-    iex> Gogs.api_base_url()
+    iex> GogsHelpers.api_base_url()
     "https://gogs-server.fly.dev/api/v1/"
   """
   def api_base_url do
