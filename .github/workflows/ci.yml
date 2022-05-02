@@ -28,7 +28,9 @@ jobs:
     - name: Run Tests
       run: mix coveralls.json
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MIX_ENV: test
+        GOGS_SSH_PORT: 10022
+        GOGS_URL: gogs-server.fly.dev
+        GOGS_ACCESS_TOKEN: ${{ secrets.GOGS_ACCESS_TOKEN }}
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
