@@ -26,6 +26,18 @@ defmodule GogsTest do
     assert remote_url == "ssh://git@gogs-server.fly.dev:10022/nelsonic/public-repo.git"
   end
 
+  test "remote_repo_create/3 creates a new repo on the Gogs server" do
+    org_name = "myorg"
+    repo_name = "test-repo" <> Integer.to_string(System.unique_integer([:positive]))
+    response = Gogs.remote_repo_create(org_name, repo_name, false)
+    IO.inspect(response)
+
+
+    assert true == true
+  end
+
+  
+
   # test "Gogs.create_org creates a new organisation on the Gogs instance" do
   #   res = Gogs.clone()
   #   IO.inspect(res)
@@ -34,7 +46,13 @@ defmodule GogsTest do
   #   delete_local_directory("public-repo")
   # end
 
-  test "Gogs.clone clones a remote repository" do
+  # test "remote_url/3 returns a valid Gogs (Fly.io) remote URL" do
+  #   git_url = Gogs.make_url("gogs-server.fly.dev", "10022")
+  #   remote_url = Gogs.remote_url(git_url, "nelsonic", "public-repo")
+  #   assert remote_url == "ssh://git@gogs-server.fly.dev:10022/nelsonic/public-repo.git"
+  # end
+
+  test "Gogs.clone clones a remote repository Gogs on Fly.io" do
     url = Envar.get("GOGS_URL")
     port = Envar.get("GOGS_SSH_PORT")
     git_url = Gogs.make_url(url, port)
@@ -54,4 +72,14 @@ defmodule GogsTest do
     delete_local_directory("public-repo")
   end
 
+  test "Gogs.clone clones a GitHub Repo just for completeness" do
+    repo = "studio" # just cause it's empty but still a valid repo.
+    git_repo_url = "git@github.com:dwyl/#{repo}.git"
+    path = Gogs.clone(git_repo_url)
+    IO.inspect(path)
+    assert path == Gogs.local_repo_path(repo)
+
+    # Clean up:
+    delete_local_directory(repo)
+  end
 end

@@ -35,7 +35,7 @@ defmodule Gogs.MixProject do
   defp deps do
     [
       # Make HTTP Requests: github.com/edgurgel/httpoison
-      {:httpoison, "~> 1.8.0"},
+      {:httpoison, "~> 1.8.1"},
 
       # Parse JSON data: github.com/michalmuskala/jason
       {:jason, "~> 1.2"},
@@ -46,6 +46,9 @@ defmodule Gogs.MixProject do
       # Git interface: github.com/danhper/elixir-git-cli
       {:git_cli, "~> 0.3"},
 
+      # Useful functions: github.com/dwyl/useful
+      {:useful, "~> 1.0.0"},
+
       # Check test coverage: github.com/parroty/excoveralls
       {:excoveralls, "~> 0.14.4", only: :test},
 
@@ -54,6 +57,7 @@ defmodule Gogs.MixProject do
 
       # Keep Code Tidy: https://github.com/rrrene/credo
       {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
+
     ]
   end
 

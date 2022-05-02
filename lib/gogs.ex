@@ -8,8 +8,15 @@ defmodule Gogs do
   We would _obviously_ prefer if everything was one or the other,
   but sadly, some things cannot be done via `Git` or `REST`
   so we have adopted a "hybrid" approach.
-  """
 
+  The functions in this file are defined in the order that we
+  are _using_ them. So they tell a story. 
+  If you are reading this and prefer to order them alphabetically
+  or some other way, please share by opening an issue: 
+  github.com/dwyl/gogs/issues
+  """
+  @access_token Envar.get("GOGS_ACCESS_TOKEN")
+  @api_base_url GogsHelpers.api_base_url()
   @httpoison (Application.compile_env(:gogs, :httpoison_mock) &&
                 Gogs.HTTPoisonMock) || HTTPoison
 
@@ -48,12 +55,64 @@ defmodule Gogs do
     "#{base_url}#{org}/#{repo}.git"
   end
 
+  @doc """
+  `parse_body_response/1` parses the response returned by the Gogs Server
+  so your app can use the resulting JSON.
+  """
+  @spec parse_body_response({atom, String.t()} | {:error, any}) :: {:ok, map} | {:error, any}
+  def parse_body_response({:error, err}), do: {:error, err}
 
+  def parse_body_response({:ok, response}) do
+    # IO.inspect(response)
+    body = Map.get(response, :body)
+    # make keys of map atoms for easier access in templates
+    if body == nil || byte_size(body) == 0 do
+      IO.inspect("response body is nil")
+      {:error, :no_body}
+    else
+      {:ok, str_key_map} = Jason.decode(body)
+      {:ok, Useful.atomize_map_keys(str_key_map)}
+    end
+
+    # https://stackoverflow.com/questions/31990134
+  end
+
+  @doc """
+  `post/2` accepts two arguments: `url` and `params`.
+  """
+  @spec post(String.t(), map) :: {:ok, map} | {:error, any}
+  def post(url, params \\ %{}) do
+    body = Jason.encode!(params)
+    headers = [
+      {"Accept", "application/json"},
+      {"Authorization", "token #{@access_token}"},
+      {"Content-Type", "application/json"}
+    ]
+    inject_poison().post(url, body, headers)
+    |> parse_body_response()
+  end
+
+
+  @doc """
+  `remote_repo_create/3` accepts two arguments: `org_name`, `repo_name` & `private`.
+  It creates a repo on the remote `Gogs` instance as defined 
+  by the environment variable `GOGS_URL`.
+  For convenience it assumes that you only have _one_ `Gogs` instance.
+  If you have more or different requirements, please share!
+  """
+  def remote_repo_create(org_name, repo_name, private \\ false) do
+    url = @api_base_url <> "org/#{org_name}/repos"
+    IO.inspect(url, label: "remote repo url")
+    params = %{
+      name: repo_name,
+      private: private
+    }
+    post(url, params)
+  end
 
   @doc """
   clone/1 clones a remote git repository based on `git_repo_url`
   returns the path of the _local_ copy of the repository.
-
   """ 
   def clone(git_repo_url) do
     IO.inspect("git clone #{git_repo_url}")
@@ -67,11 +126,6 @@ defmodule Gogs do
     end
   end
 
-  # def commit do
-    
-  # end
-
-
   # Feel free to refactor/simplify this function if you want.
   def get_repo_name_from_url(url) do
     String.split(url, "/") |> List.last() |> String.split(".git") |> List.first()
@@ -81,7 +135,13 @@ defmodule Gogs do
     temp_dir() <> "/" <> repo
   end
 
+  # Made this a function in case we want to 
   defp temp_dir do
     File.cwd!
   end
+
+
+  # def commit do
+    
+  # end
 end
