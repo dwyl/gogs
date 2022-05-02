@@ -63,7 +63,13 @@ defmodule Gogs.HTTPoisonMock do
     {:ok, %{body: response_body}}
   end
 
-  
+  @doc """
+  `post/3` stubs the HTTPoison post function when parameters match test vars.
+  feel free refactor this if you can make it pretty. 
+  """
+  def delete(url) do
+    {:ok, %{body: Jason.encode!(%{deleted: List.first(String.split(url, "?"))})}}
+  end
 
   # @body_email_nil %{
   #   access_token: "12345",
