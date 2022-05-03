@@ -28,11 +28,23 @@ defmodule Gogs do
   def inject_poison, do: @httpoison
 
   @doc """
-  returns the remote url for cloning
+  `remote_url/3` returns the remote url for cloning
   """
   def remote_url(base_url, org, repo) do
     "#{base_url}#{org}/#{repo}.git"
   end
+
+  
+  @doc """
+  `remote_url_ssh/2` returns the remote ssh url for cloning.
+  """
+  def remote_url_ssh(org, repo) do
+    url = Envar.get("GOGS_URL")
+    port = Envar.get("GOGS_SSH_PORT")
+    git_url = GogsHelpers.make_url(url, port)
+    remote_url(git_url, org, repo)
+  end
+
 
   @doc """
   `parse_body_response/1` parses the response returned by the Gogs Server
@@ -87,7 +99,8 @@ defmodule Gogs do
     params = %{
       name: repo_name,
       private: private,
-      description: repo_name
+      description: repo_name,
+      readme: repo_name
     }
     post(url, params)
   end
@@ -98,7 +111,7 @@ defmodule Gogs do
   """
   @spec delete(String.t()) :: {:ok, map} | {:error, any}
   def delete(url) do
-    inject_poison().delete(url)
+    inject_poison().delete(url <> "?token=#{@access_token}")
     |> parse_body_response()
   end
 
@@ -108,10 +121,11 @@ defmodule Gogs do
   by the environment variable `GOGS_URL`.
   """
   def remote_repo_delete(org_name, repo_name) do
-    url = @api_base_url <> "repos/#{org_name}/#{repo_name}?token=#{@access_token}"
-    IO.inspect(url, label: "remote_repo_delete url")
+    url = @api_base_url <> "repos/#{org_name}/#{repo_name}"
+    # IO.inspect(url, label: "remote_repo_delete url")
     delete(url)
   end
+
 
 
   @doc """
@@ -122,7 +136,7 @@ defmodule Gogs do
     # IO.inspect("git clone #{git_repo_url}")
     case Git.clone(git_repo_url)  do
       {:ok, %Git.Repository{path: path}} ->
-        # IO.inspect(path)
+        IO.inspect(path)
         path
       {:error, %Git.Error{message: _message}} ->
         # IO.inspect("Attempted to clone #{git_repo_url}, got: #{message}")
@@ -143,13 +157,19 @@ defmodule Gogs do
   `local_repo_path/1` returns the full system path for the cloned repo
   on the `localhost` i.e. the Elixir/Phoenix server that cloned it.
   """ 
-  def local_repo_path(repo) do
-    temp_dir() <> "/" <> repo
+  def local_repo_path(repo_name) do
+    temp_dir() <> "/" <> repo_name
   end
 
   # Made this a function in case we want to 
   defp temp_dir do
     File.cwd!
+  end
+
+  def local_branch_create(repo_name, _branch_name \\ "draft") do
+    path = local_repo_path(repo_name)
+    repo = %Git.Repository{path: path}
+    Git.checkout(repo, ~w(-b draft)) # ["-b", branch_name])
   end
 
 

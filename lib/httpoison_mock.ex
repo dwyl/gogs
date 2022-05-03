@@ -47,12 +47,13 @@ defmodule Gogs.HTTPoisonMock do
       full_name: "myorg/#{repo_name}",
       html_url: "https://gogs-server.fly.dev/myorg/#{repo_name}",
       ssh_url: "ssh://git@gogs-server.fly.dev:10022/myorg/#{repo_name}.git",
+      readme: repo_name
     })
   end
 
   @doc """
   `post/3` stubs the HTTPoison post function when parameters match test vars.
-  feel free refactor this if you can make it pretty. 
+  Feel free refactor this if you can make it pretty. 
   """
   def post("https://gogs-server.fly.dev/api/v1/org/myorg/repos", body, _headers) do
     # IO.inspect("Gogs.HTTPoisonMock.post/3 called!")
@@ -64,8 +65,8 @@ defmodule Gogs.HTTPoisonMock do
   end
 
   @doc """
-  `post/3` stubs the HTTPoison post function when parameters match test vars.
-  feel free refactor this if you can make it pretty. 
+  `delete/1` stubs the HTTPoison `delete` function.
+  Feel free refactor this if you can make it pretty. 
   """
   def delete(url) do
     {:ok, %{body: Jason.encode!(%{deleted: List.first(String.split(url, "?"))})}}

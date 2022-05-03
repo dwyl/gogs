@@ -26,9 +26,9 @@ This package is that interface.
 
 ## What?
 
-Very much still work-in-progress.
-But we already have a handful of functions working.
-See: https://hexdocs.pm/gogs/Gogs.html
+Very much still work-in-progress. ⏳  👨‍💻  <br />
+But we already have a handful of functions working.  🚀<br />
+See: https://hexdocs.pm/gogs/Gogs.html 📚 
 
 ## Who?
 

@@ -31,6 +31,26 @@ defmodule GogsTest do
   end
 
   
+  test "local_branch_create/1 creates a new branch on the localhost" do
+    org_name = "myorg"
+    repo_name = "test-repo" <> Integer.to_string(System.unique_integer([:positive]))
+    Gogs.remote_repo_create(org_name, repo_name, false)
+    IO.puts "waiting for repo to be crated" ; :timer.sleep(1000); IO.puts "done."
+    git_repo_url = Gogs.remote_url_ssh(org_name, repo_name)
+    _path = Gogs.clone(git_repo_url)
+    # IO.inspect(path, label: "path:41")
+
+    {:ok, res} = Gogs.local_branch_create(repo_name, "draft")
+    # IO.inspect(res, label: "local_branch_create(repo_name) res")
+    # IO.inspect(response, label: "org_create response")
+
+    assert res == "Switched to a new branch 'draft'\n"
+
+    # Cleanup!
+    Gogs.remote_repo_delete(org_name, repo_name)
+    delete_local_directory(repo_name)
+  end
+
   
 
   # test "Gogs.create_org creates a new organisation on the Gogs instance" do
@@ -48,12 +68,9 @@ defmodule GogsTest do
   # end
 
   test "Gogs.clone clones a remote repository Gogs on Fly.io" do
-    url = Envar.get("GOGS_URL")
-    port = Envar.get("GOGS_SSH_PORT")
-    git_url = GogsHelpers.make_url(url, port)
     org = "nelsonic"
     repo = "public-repo"
-    git_repo_url = Gogs.remote_url(git_url, org, repo)
+    git_repo_url = Gogs.remote_url_ssh(org, repo)
 
     path = Gogs.clone(git_repo_url)
     IO.inspect(path)
