@@ -27,6 +27,7 @@ jobs:
       run: whoami
     - name: clone
       run: |-
+        pwd
         git clone https://github.com/dwyl/gogs-server.git
         cd gogs-server
         ls -ath
