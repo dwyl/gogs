@@ -35,7 +35,7 @@ defmodule GogsTest do
     org_name = "myorg"
     repo_name = "test-repo" <> Integer.to_string(System.unique_integer([:positive]))
     Gogs.remote_repo_create(org_name, repo_name, false)
-    IO.puts "waiting for repo to be crated" ; :timer.sleep(1000); IO.puts "done."
+    IO.puts "waiting for repo to be created" ; :timer.sleep(2000); IO.puts "done."
     git_repo_url = Gogs.remote_url_ssh(org_name, repo_name)
     _path = Gogs.clone(git_repo_url)
     # IO.inspect(path, label: "path:41")

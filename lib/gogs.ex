@@ -9,11 +9,8 @@ defmodule Gogs do
   but sadly, some things cannot be done via `Git` or `REST`
   so we have adopted a "hybrid" approach.
 
-  The functions in this file are defined in the order that we
-  are _using_ them. So they tell a story. 
-  If you are reading this and prefer to order them alphabetically
-  or some other way, please share by opening an issue: 
-  github.com/dwyl/gogs/issues
+  If anything is unclear, please open an issue: 
+  https://github.com/dwyl/gogs/issues
   """
   @access_token Envar.get("GOGS_ACCESS_TOKEN")
   @api_base_url GogsHelpers.api_base_url()
@@ -172,8 +169,13 @@ defmodule Gogs do
     Git.checkout(repo, ~w(-b draft)) # ["-b", branch_name])
   end
 
+  
 
   # def commit do
     
+  # end
+
+  # def push do
+
   # end
 end
