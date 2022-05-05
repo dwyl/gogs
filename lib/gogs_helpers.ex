@@ -1,7 +1,8 @@
 defmodule GogsHelpers do
   @moduledoc """
   Helper functions that can be unit tested independently of the main functions.
-  If you spot any way to make these better: https://github.com/dwyl/gogs/issues
+  If you spot any way to make these better, please share:
+  https://github.com/dwyl/gogs/issues
   """
   @doc """
   `api_base_url/0` returns the `Gogs` Server REST API url for API requests.

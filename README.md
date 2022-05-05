@@ -27,14 +27,15 @@ This package is that interface.
 ## What?
 
 Very much still work-in-progress. ⏳  👨‍💻  <br />
-But we already have a handful of functions working.  🚀<br />
-See: https://hexdocs.pm/gogs/Gogs.html 📚 
+But we already have a handful of functions _working_.  🚀<br />
+See: https://hexdocs.pm/gogs 📚 
 
+<!--
 ## Who?
 
 For now this is "for us by us".
 But we already have a potential reuse case for this. 
-
+->
 ## _How_?
 
 ## Installation
@@ -46,7 +47,7 @@ by adding `gogs` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:gogs, "~> 0.1.0"}
+    {:gogs, "~> 0.4.0"}
   ]
 end
 ```

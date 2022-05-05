@@ -26,9 +26,8 @@ defmodule Gogs.GitMock do
     destination = GogsHelpers.local_repo_path(repo_name)
 
     # Clone the *real* repo:
-    org = "nelsonic"
     real_repo = "public-repo"
-    git_repo_url = GogsHelpers.remote_url_ssh(org, real_repo)
+    git_repo_url = GogsHelpers.remote_url_ssh("nelsonic", real_repo)
     
     # Run the *real* clone:
     case Git.clone(git_repo_url)  do
