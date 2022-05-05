@@ -116,7 +116,8 @@ defmodule Gogs do
   """ 
   @spec local_branch_create(String.t(), String.t()) :: {:ok, map} | {:error, any}
   def local_branch_create(repo_name, _branch_name \\ "draft") do
-    inject_git().checkout(local_git_repo(repo_name), ~w(-b draft))
+    # inject_git().checkout(local_git_repo(repo_name), ~w(-b draft))
+    Git.checkout(local_git_repo(repo_name), ~w(-b draft))
   end
 
   @spec local_file_write_text(String.t(), String.t(), String.t()) :: :ok | {:error, any}
