@@ -1,5 +1,5 @@
 defmodule GogsHelpersTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest GogsHelpers
 
   test "GogsHelpers.api_base_url/0 returns the API URL for the Gogs Server" do

@@ -21,7 +21,7 @@ defmodule Gogs.GitMock do
     end
   end
 
-  def checkout(_, _) do
-    {:ok, "Switched to a new branch 'draft'\n"}
-  end
+  # def checkout(_, _) do
+  #   {:ok, "Switched to a new branch 'draft'\n"}
+  # end
 end

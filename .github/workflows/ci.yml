@@ -23,28 +23,6 @@ jobs:
         path: deps
         key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
         restore-keys: ${{ runner.os }}-mix-
-    - name: Whoami?
-      run: whoami
-    - name: git clone > cd > checkout 'draft'
-      run: |-
-        pwd
-        git clone https://github.com/dwyl/gogs-server.git
-        cd gogs-server
-        ls -ath
-        git checkout -b 'draft'
-        git branch
-        pwd
-        echo $GITHUB_WORKSPACE
-        cd $GITHUB_WORKSPACE
-        cd ..
-        pwd
-        mkdir test
-        cd test
-        echo "Hello" >> README.md
-        cat README.md
-        cd /
-        ls
-        cd /tmp
     - name: Install dependencies
       run: mix deps.get
     - name: Run Tests

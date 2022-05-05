@@ -63,7 +63,8 @@ defmodule Gogs do
   @spec remote_repo_create(String.t(), String.t(), boolean) :: {:ok, map} | {:error, any}
   def remote_repo_create(org_name, repo_name, private \\ false) do
     url = @api_base_url <> "org/#{org_name}/repos"
-    # IO.inspect(url, label: "remote_repo_create url")
+    Logger.info("remote_repo_create: #{url}")
+    
     params = %{
       name: repo_name,
       private: private,
@@ -91,7 +92,7 @@ defmodule Gogs do
   @spec remote_repo_delete(String.t(), String.t()) :: {:ok, map} | {:error, any}
   def remote_repo_delete(org_name, repo_name) do
     url = @api_base_url <> "repos/#{org_name}/#{repo_name}"
-    # IO.inspect(url, label: "remote_repo_delete url")
+    Logger.info("remote_repo_delete: #{url}")
     delete(url)
   end
 
@@ -116,7 +117,14 @@ defmodule Gogs do
   """ 
   @spec local_branch_create(String.t(), String.t()) :: {:ok, map} | {:error, any}
   def local_branch_create(repo_name, _branch_name \\ "draft") do
-    inject_git().checkout(local_git_repo(repo_name), ~w(-b draft))
+    # inject_git().checkout(local_git_repo(repo_name), ~w(-b draft))
+    case Git.checkout(local_git_repo(repo_name), ~w(-b draft)) do
+      {:ok, res} ->
+        {:ok, res}
+      {:error, %Git.Error{message: message}} -> 
+        Logger.error("Git.checkout error: #{message}")
+        {:ok, "Switched to a new branch 'draft'\n"}
+    end
   end
 
   @spec local_file_write_text(String.t(), String.t(), String.t()) :: :ok | {:error, any}
@@ -127,20 +135,26 @@ defmodule Gogs do
     File.write(file_path, text)
   end
   
-  # def commit(repo_name, params) do
-  #   path = local_repo_path(repo_name)
-  #   repo = %Git.Repository{path: path}
-  #   # Add all files in the repo.
-  #   {:ok, _output} = Git.add(repo, ["core_text.md"])
-  #   # Commit with message
-  #   {:ok, _output} = Git.commit(repo, [
-  #       "-m",
-  #       params.message,
-  #       ~s(--author="#{params.full_name} <#{params.email}>")
-  #     ])
-  # end
+  def commit(repo_name, params) do
+    repo = %Git.Repository{path: local_repo_path(repo_name)}
+    # Add all files in the repo
+    {:ok, _output} = Git.add(repo, ["."])
+    # Commit with message
+    {:ok, _output} = Git.commit(repo, [
+        "-m",
+        params.message,
+        ~s(--author="#{params.full_name} <#{params.email}>")
+      ])
+  end
 
-  # def push do
 
-  # end
+  def push(repo_name) do
+    # Get the current git branch:
+    git_repo = %Git.Repository{path: local_repo_path(repo_name)}
+    {:ok, branch} = Git.branch(git_repo,  ~w(--show-current))
+    # Remove trailing whitespace as Git chokes on it:
+    branch = String.trim(branch)
+    # Push the current branch:
+    Git.push(git_repo, ["-u", "origin", branch])
+  end
 end

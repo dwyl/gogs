@@ -1,5 +1,5 @@
 defmodule GogsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Gogs
   # @github_url "https://github.com/"
 
@@ -64,7 +64,7 @@ defmodule GogsTest do
 
   test "Gogs.clone error (simulate unhappy path)" do
     repo = "error"
-    org = "nelsonic"
+    org = "myorg"
     git_repo_url = GogsHelpers.remote_url_ssh(org, repo)
     path = Gogs.clone(git_repo_url)
     IO.inspect(path)
@@ -100,5 +100,51 @@ defmodule GogsTest do
     Gogs.remote_repo_delete("myorg", repo_name)
     delete_local_directory(repo_name)
   end
+
+  test "commit/2 creates a commit in the repo" do
+    repo_name = create_test_git_repo("myorg")
+    file_name = "README.md"
+    assert :ok ==
+      Gogs.local_file_write_text(repo_name, file_name, "text #{repo_name}")
+
+    # Confirm the text was written to the file:
+    file_path = Path.join([GogsHelpers.local_repo_path(repo_name), file_name])
+    assert {:ok,"text #{repo_name}" } == File.read(file_path)
+
+    {:ok, msg} = Gogs.commit(repo_name, %{message: "test msg", full_name: "Al Ex", email: "c@t.co"})
+    assert String.contains?(msg, "test msg")
+    assert String.contains?(msg, "1 file changed, 1 insertion(+)")
+
+    # Cleanup!
+    Gogs.remote_repo_delete("myorg", repo_name)
+    delete_local_directory(repo_name)
+  end
+
+  test "push/2 pushes the commit to the remote repo" do
+    repo_name = create_test_git_repo("myorg")
+    
+    # checkout draft branch
+    
+
+    file_name = "README.md"
+    assert :ok ==
+      Gogs.local_file_write_text(repo_name, file_name, "text #{repo_name}")
+
+    # Confirm the text was written to the file:
+    file_path = Path.join([GogsHelpers.local_repo_path(repo_name), file_name])
+    assert {:ok,"text #{repo_name}" } == File.read(file_path)
+
+    # Commit the updated text:
+    {:ok, msg} = Gogs.commit(repo_name, %{message: "test msg", full_name: "Al Ex", email: "c@t.co"})
+    assert String.contains?(msg, "test msg")
+
+    # Push to Gogs Server!
+    Gogs.push(repo_name) |> IO.inspect()
+
+    # Cleanup!
+    Gogs.remote_repo_delete("myorg", repo_name)
+    delete_local_directory(repo_name)
+  end
+
 
 end
