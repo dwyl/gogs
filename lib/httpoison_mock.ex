@@ -1,10 +1,12 @@
 defmodule Gogs.HTTPoisonMock do
   @moduledoc """
-    This is a set up to mock (stub) our API requests to the GitHub API
-    so that we can test all of our code in ElixirAuthGithub.
+    This is a set up to mock (stub) our API requests to the Gogs API
+    so that we can test all of our code (with Mocks) on GitHub CI.
     These are just functions that pattern match on the entries
-    and return things in the way we expect,
-    so that we can check the pipeline in ElixirAuthGithub.github_auth
+    and return the expected responses.
+    If you know of a better way of doing this 
+    (without introducing more dependencies ...)
+    Please share: https://github.com/dwyl/gogs/issues
   """
   @remote_repo_create_response_body %{
     clone_url: "https://gogs-server.fly.dev/myorg/replacethis.git",
