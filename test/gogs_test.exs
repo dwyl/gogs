@@ -61,7 +61,6 @@ defmodule GogsTest do
     {:ok, res} = Gogs.local_branch_create(repo_name, "draft")
     # IO.inspect(res, label: "local_branch_create(repo_name) res")
     # IO.inspect(response, label: "org_create response")
-
     assert res == "Switched to a new branch 'draft'\n"
 
     # Cleanup!
