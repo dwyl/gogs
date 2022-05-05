@@ -22,14 +22,13 @@ defmodule Gogs do
   @httpoison (@mock && Gogs.HTTPoisonMock) || HTTPoison
 
   @doc """
-  `inject_git/0` injects a TestDouble Git in Tests
-  so that we don't have duplicate mocks in the downstream app.
+  `inject_git/0` injects a `Git` TestDouble in Tests & CI
+  so we don't have duplicate mocks in the downstream app.
   """
   def inject_git, do: @git
 
   @doc """
-  `inject_poison/0` injects a TestDouble of HTTPoison in Test
-  so that we don't have duplicate mock in consuming apps.
+  `inject_poison/0` injects a TestDouble of HTTPoison in Test.
   see: github.com/dwyl/elixir-auth-google/issues/35
   """
   def inject_poison, do: @httpoison
@@ -99,7 +98,8 @@ defmodule Gogs do
   @doc """
   `clone/1` clones a remote git repository based on `git_repo_url`
   returns the path of the _local_ copy of the repository.
-  """ 
+  """
+  @spec clone(String.t()) :: {:ok, any} | {:error, any}
   def clone(git_repo_url) do
     # IO.inspect("git clone #{git_repo_url}")
     case inject_git().clone(git_repo_url)  do
@@ -113,28 +113,41 @@ defmodule Gogs do
   end
 
   @doc """
-  `local_branch_create/2` creates a branch .
+  `local_branch_create/2` creates a branch with the specified name
+  or defaults to "draft".
   """ 
   @spec local_branch_create(String.t(), String.t()) :: {:ok, map} | {:error, any}
-  def local_branch_create(repo_name, _branch_name \\ "draft") do
-    # inject_git().checkout(local_git_repo(repo_name), ~w(-b draft))
-    case Git.checkout(local_git_repo(repo_name), ~w(-b draft)) do
+  def local_branch_create(repo_name, branch_name \\ "draft") do
+    case Git.checkout(local_git_repo(repo_name), ["-b", branch_name]) do
       {:ok, res} ->
         {:ok, res}
       {:error, %Git.Error{message: message}} -> 
         Logger.error("Git.checkout error: #{message}")
-        {:ok, "Switched to a new branch 'draft'\n"}
+        {:ok, message}
     end
   end
 
+  @doc """
+  `local_file_write_text/3` writes the desired `text`,
+  to the `file_name` in the `repo_name`. 
+  Touches the file in case it doesn't already exist.
+  """ 
   @spec local_file_write_text(String.t(), String.t(), String.t()) :: :ok | {:error, any}
   def local_file_write_text(repo_name, file_name, text) do
     file_path = Path.join([local_repo_path(repo_name), file_name])
-    # Logger.info("attempting to write to #{file_path}")
+    Logger.info("attempting to write to #{file_path}")
     File.touch!(file_path)
     File.write(file_path, text)
   end
   
+  @doc """
+  `commit/2` commits the latest changes on the local branch.
+  Accepts the `repo_name` and a `Map` of `params`:
+  `params.message`: the commit message you want in the log
+  `params.full_name`: the name of the person making the commit
+  `params.email`: email address of the person committing. 
+  """ 
+  @spec commit(String.t(), map) :: {:ok, any} | {:error, any}
   def commit(repo_name, params) do
     repo = %Git.Repository{path: local_repo_path(repo_name)}
     # Add all files in the repo
@@ -147,7 +160,11 @@ defmodule Gogs do
       ])
   end
 
-
+  @doc """
+  `push/1` pushes the `repo_name` (current active branch)
+  to the remote repository URL. Mocked during test/CI.
+  """ 
+  @spec push(String.t()) :: {:ok, any} | {:error, any}
   def push(repo_name) do
     # Get the current git branch:
     git_repo = %Git.Repository{path: local_repo_path(repo_name)}

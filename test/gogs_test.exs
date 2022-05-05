@@ -73,11 +73,17 @@ defmodule GogsTest do
 
   test "local_branch_create/1 creates a new branch on the localhost" do
     repo_name = create_test_git_repo("myorg")
-    # delete before if exists:
+    # delete draft branch if exists:
+    Git.branch(GogsHelpers.local_git_repo(repo_name), ["-m", repo_name])
     Git.branch(GogsHelpers.local_git_repo(repo_name), ~w(-D draft))
+
 
     {:ok, res} = Gogs.local_branch_create(repo_name, "draft")
     assert res == "Switched to a new branch 'draft'\n"
+
+    # Try create the "draft" branch again. Should error but not "throw":
+    {:ok, err} = Gogs.local_branch_create(repo_name, "draft")
+    assert String.contains?(err, "A branch named 'draft' already exists")
 
     # Cleanup!
     Gogs.remote_repo_delete("myorg", repo_name)
@@ -139,7 +145,7 @@ defmodule GogsTest do
     assert String.contains?(msg, "test msg")
 
     # Push to Gogs Server!
-    Gogs.push(repo_name) |> IO.inspect()
+    Gogs.push(repo_name)
 
     # Cleanup!
     Gogs.remote_repo_delete("myorg", repo_name)
