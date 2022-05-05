@@ -1,6 +1,6 @@
 defmodule Gogs do
   @moduledoc """
-  Documentation for `Gogs`.
+  Documentation for the main `Gogs` functions. <br />
   This package is an `Elixir` interface to our `Gogs` Server.
   It contains all functions we need to create repositories,
   clone, add data to files, commit, push and diff.
@@ -12,9 +12,11 @@ defmodule Gogs do
   If anything is unclear, please open an issue: 
   https://github.com/dwyl/gogs/issues
   """
+  import GogsHelpers
   @access_token Envar.get("GOGS_ACCESS_TOKEN")
   @api_base_url GogsHelpers.api_base_url()
-  @httpoison (Application.compile_env(:gogs, :httpoison_mock) &&
+  @git (Application.compile_env(:gogs, :mock) && Gogs.GitMock) || Git
+  @httpoison (Application.compile_env(:gogs, :mock) &&
                 Gogs.HTTPoisonMock) || HTTPoison
 
   @doc """
@@ -22,46 +24,14 @@ defmodule Gogs do
   so that we don't have duplicate mock in consuming apps.
   see: github.com/dwyl/elixir-auth-google/issues/35
   """
+  def inject_git, do: @git
+
+  @doc """
+  `inject_poison/0` injects a TestDouble of HTTPoison in Test
+  so that we don't have duplicate mock in consuming apps.
+  see: github.com/dwyl/elixir-auth-google/issues/35
+  """
   def inject_poison, do: @httpoison
-
-  @doc """
-  `remote_url/3` returns the remote url for cloning
-  """
-  def remote_url(base_url, org, repo) do
-    "#{base_url}#{org}/#{repo}.git"
-  end
-
-  
-  @doc """
-  `remote_url_ssh/2` returns the remote ssh url for cloning.
-  """
-  def remote_url_ssh(org, repo) do
-    url = Envar.get("GOGS_URL")
-    port = Envar.get("GOGS_SSH_PORT")
-    git_url = GogsHelpers.make_url(url, port)
-    remote_url(git_url, org, repo)
-  end
-
-
-  @doc """
-  `parse_body_response/1` parses the response returned by the Gogs Server
-  so your app can use the resulting JSON.
-  """
-  @spec parse_body_response({atom, String.t()} | {:error, any}) :: {:ok, map} | {:error, any}
-  def parse_body_response({:error, err}), do: {:error, err}
-
-  def parse_body_response({:ok, response}) do
-    # IO.inspect(response)
-    body = Map.get(response, :body)
-    # make keys of map atoms for easier access in templates
-    if body == nil || byte_size(body) == 0 do
-      # IO.inspect("response body is nil")
-      {:error, :no_body}
-    else
-      {:ok, str_key_map} = Jason.decode(body)
-      {:ok, Useful.atomize_map_keys(str_key_map)}
-    end
-  end
 
   @doc """
   `post/2` accepts two arguments: `url` and `params`. 
@@ -123,8 +93,6 @@ defmodule Gogs do
     delete(url)
   end
 
-
-
   @doc """
   `clone/1` clones a remote git repository based on `git_repo_url`
   returns the path of the _local_ copy of the repository.
@@ -141,36 +109,13 @@ defmodule Gogs do
     end
   end
 
-
-  @doc """
-  `get_repo_name_from_url/1` extracts the repository name from a .git url.
-  Feel free to refactor/simplify this function if you want.
-  """ 
-  def get_repo_name_from_url(url) do
-    String.split(url, "/") |> List.last() |> String.split(".git") |> List.first()
-  end
-
-  @doc """
-  `local_repo_path/1` returns the full system path for the cloned repo
-  on the `localhost` i.e. the Elixir/Phoenix server that cloned it.
-  """ 
-  def local_repo_path(repo_name) do
-    temp_dir() <> "/" <> repo_name
-  end
-
-  # Made this a function in case we want to 
-  defp temp_dir do
-    File.cwd!
-  end
-
   def local_branch_create(repo_name, _branch_name \\ "draft") do
     path = local_repo_path(repo_name)
     repo = %Git.Repository{path: path}
-    Git.checkout(repo, ~w(-b draft)) # ["-b", branch_name])
+    inject_git().checkout(repo, ~w(-b draft)) # ["-b", branch_name])
   end
 
   
-
   # def commit do
     
   # end
