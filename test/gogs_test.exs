@@ -62,7 +62,7 @@ defmodule GogsTest do
     delete_local_directory(repo)
   end
 
-  test "Gogs.clone error branch" do
+  test "Gogs.clone error (simulate unhappy path)" do
     repo = "error"
     org = "nelsonic"
     git_repo_url = GogsHelpers.remote_url_ssh(org, repo)
@@ -73,12 +73,16 @@ defmodule GogsTest do
 
   test "local_branch_create/1 creates a new branch on the localhost" do
     repo_name = create_test_git_repo("myorg")
+    # delete before if exists:
+    Git.branch(GogsHelpers.local_git_repo(repo_name), ~w(-D draft))
+
     {:ok, res} = Gogs.local_branch_create(repo_name, "draft")
     assert res == "Switched to a new branch 'draft'\n"
 
     # Cleanup!
     Gogs.remote_repo_delete("myorg", repo_name)
     delete_local_directory(repo_name)
+    Git.branch(GogsHelpers.local_git_repo(repo_name), ~w(-D draft))
   end
 
 
