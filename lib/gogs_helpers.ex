@@ -77,14 +77,21 @@ defmodule GogsHelpers do
     %Git.Repository{path: local_repo_path(repo_name)}
   end
 
-
+  @github (Envar.is_set?("GITHUB_WORKSPACE") &&
+    Envar.get("GITHUB_WORKSPACE")) || nil
   @doc """
   `temp_dir/0` returns the Current Working Directory (CWD).
   Made this a function in case we want to change the location of the
   directory later e.g. to a temporary directory. 
   """ 
   def temp_dir do
-    File.cwd!
+    # coveralls-ignore-start
+    if @github do
+      String.split(@github, "/") |> List.delete_at(-1) |> Enum.join("/") |> IO.inspect()
+    else
+      File.cwd!
+    end
+    # coveralls-ignore-stop
   end
 
   @doc """
