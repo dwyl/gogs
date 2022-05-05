@@ -64,8 +64,18 @@ defmodule GogsHelpers do
   on the `localhost` i.e. the Elixir/Phoenix server that cloned it.
   """ 
   def local_repo_path(repo_name) do
-    temp_dir() <> "/" <> repo_name
+    # temp_dir() <> "/" <> repo_name
+    Path.join([temp_dir(), repo_name])
   end
+
+  @doc """
+  `local_git_repo/1` returns the `%Git.Repository{}` (struct) for a `repo_name`
+  on the `localhost`. This is used by the `Git` module to perform operations.
+  """ 
+  def local_git_repo(repo_name) do
+    %Git.Repository{path: local_repo_path(repo_name)}
+  end
+
 
   @doc """
   `temp_dir/0` returns the Current Working Directory (CWD).

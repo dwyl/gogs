@@ -1,6 +1,6 @@
 defmodule Gogs do
   @moduledoc """
-  Documentation for the main `Gogs` functions. <br />
+  Documentation for the main `Gogs` functions.  
   This package is an `Elixir` interface to our `Gogs` Server.
   It contains all functions we need to create repositories,
   clone, add data to files, commit, push and diff.
@@ -13,6 +13,8 @@ defmodule Gogs do
   https://github.com/dwyl/gogs/issues
   """
   import GogsHelpers
+  require Logger
+
   @access_token Envar.get("GOGS_ACCESS_TOKEN")
   @api_base_url GogsHelpers.api_base_url()
   @git (Application.compile_env(:gogs, :mock) && Gogs.GitMock) || Git
@@ -20,9 +22,8 @@ defmodule Gogs do
                 Gogs.HTTPoisonMock) || HTTPoison
 
   @doc """
-  `inject_poison/0` injects a TestDouble of HTTPoison in Test
-  so that we don't have duplicate mock in consuming apps.
-  see: github.com/dwyl/elixir-auth-google/issues/35
+  `inject_git/0` injects a TestDouble Git in Tests
+  so that we don't have duplicate mocks in the downstream app.
   """
   def inject_git, do: @git
 
@@ -52,7 +53,6 @@ defmodule Gogs do
     |> parse_body_response()
   end
 
-
   @doc """
   `remote_repo_create/3` accepts 3 arguments: `org_name`, `repo_name` & `private`.
   It creates a repo on the remote `Gogs` instance as defined 
@@ -60,6 +60,7 @@ defmodule Gogs do
   For convenience it assumes that you only have _one_ `Gogs` instance.
   If you have more or different requirements, please share!
   """
+  @spec remote_repo_create(String.t(), String.t(), boolean) :: {:ok, map} | {:error, any}
   def remote_repo_create(org_name, repo_name, private \\ false) do
     url = @api_base_url <> "org/#{org_name}/repos"
     # IO.inspect(url, label: "remote_repo_create url")
@@ -87,6 +88,7 @@ defmodule Gogs do
   It deletes the repo on the remote `Gogs` instance as defined 
   by the environment variable `GOGS_URL`.
   """
+  @spec remote_repo_delete(String.t(), String.t()) :: {:ok, map} | {:error, any}
   def remote_repo_delete(org_name, repo_name) do
     url = @api_base_url <> "repos/#{org_name}/#{repo_name}"
     # IO.inspect(url, label: "remote_repo_delete url")
@@ -99,25 +101,43 @@ defmodule Gogs do
   """ 
   def clone(git_repo_url) do
     # IO.inspect("git clone #{git_repo_url}")
-    case Git.clone(git_repo_url)  do
+    case inject_git().clone(git_repo_url)  do
       {:ok, %Git.Repository{path: path}} ->
-        IO.inspect(path)
+        # Logger.info("Cloned repo: #{git_repo_url} to: #{path}")
         path
-      {:error, %Git.Error{message: _message}} ->
-        # IO.inspect("Attempted to clone #{git_repo_url}, got: #{message}")
+      {:error, %Git.Error{message: message}} ->
+        Logger.error("ERROR: Tried to clone #{git_repo_url}, got: #{message}")
         get_repo_name_from_url(git_repo_url) |> local_repo_path()
     end
   end
 
+  @doc """
+  `local_branch_create/2` creates a branch .
+  """ 
+  @spec local_branch_create(String.t(), String.t()) :: {:ok, map} | {:error, any}
   def local_branch_create(repo_name, _branch_name \\ "draft") do
-    path = local_repo_path(repo_name)
-    repo = %Git.Repository{path: path}
-    inject_git().checkout(repo, ~w(-b draft)) # ["-b", branch_name])
+    inject_git().checkout(local_git_repo(repo_name), ~w(-b draft))
   end
 
+  @spec local_file_write_text(String.t(), String.t(), String.t()) :: :ok | {:error, any}
+  def local_file_write_text(repo_name, file_name, text) do
+    file_path = Path.join([local_repo_path(repo_name), file_name])
+    # IO.inspect("attempting to write to #{file_path}")
+    File.touch!(file_path)
+    File.write(file_path, text)
+  end
   
-  # def commit do
-    
+  # def commit(repo_name, params) do
+  #   path = local_repo_path(repo_name)
+  #   repo = %Git.Repository{path: path}
+  #   # Add all files in the repo.
+  #   {:ok, _output} = Git.add(repo, ["core_text.md"])
+  #   # Commit with message
+  #   {:ok, _output} = Git.commit(repo, [
+  #       "-m",
+  #       params.message,
+  #       ~s(--author="#{params.full_name} <#{params.email}>")
+  #     ])
   # end
 
   # def push do
