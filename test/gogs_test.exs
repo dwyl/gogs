@@ -28,10 +28,10 @@ defmodule GogsTest do
     repo_name = test_repo()
     {:ok, response} = Gogs.remote_repo_create(org_name, repo_name, false)
     response = Map.drop(response, [:id, :created_at, :updated_at])
-    IO.inspect(response)
+    # IO.inspect(response)
 
-    {:ok, mock_response} = Gogs.HTTPoisonMock.make_repo_create_post_response_body(repo_name)
-    IO.inspect(mock_response)
+    mock_response = Gogs.HTTPoisonMock.make_repo_create_post_response_body(repo_name)
+    # IO.inspect(mock_response)
     assert response == mock_response
 
     # Cleanup:
