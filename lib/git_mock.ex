@@ -27,7 +27,17 @@ defmodule Gogs.GitMock do
     end
   end
 
-  # def checkout(_, _) do
-  #   {:ok, "Switched to a new branch 'draft'\n"}
-  # end
+  @doc """
+  `push/1` (mock) pushes the latest commits on the current branch 
+  to the Gogs remote repository.
+
+    ## Examples
+    iex> GitMock.push("my-repo")
+    {:ok, "To ssh://gogs-server.fly.dev:10022/myorg/my-repo.git\n"}
+  """
+  @spec push(%Git.Repository{}, [any]) :: {:ok, any}
+  def push(%Git.Repository{path: repo_path}, _args) do
+    repo_name = GogsHelpers.get_repo_name_from_url(repo_path <> ".git")
+    {:ok, "To ssh://gogs-server.fly.dev:10022/myorg/#{repo_name}.git\n"}
+  end
 end
