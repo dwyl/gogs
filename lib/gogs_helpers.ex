@@ -4,6 +4,9 @@ defmodule GogsHelpers do
   If you spot any way to make these better, please share:
   https://github.com/dwyl/gogs/issues
   """
+  @github Envar.is_set?("GITHUB_WORKSPACE")
+  @mock Application.compile_env(:gogs, :mock)
+
   @doc """
   `api_base_url/0` returns the `Gogs` Server REST API url for API requests.
 
@@ -66,7 +69,13 @@ defmodule GogsHelpers do
   """ 
   def local_repo_path(repo_name) do
     # temp_dir() <> "/" <> repo_name
-    Path.join([temp_dir(), repo_name])
+    # coveralls-ignore-start
+    if @github || @mock do
+      Path.join([temp_dir(), "test-repo"])
+    else
+      Path.join([temp_dir(), repo_name])
+    end
+    # coveralls-ignore-stop
   end
 
   @doc """
@@ -77,21 +86,13 @@ defmodule GogsHelpers do
     %Git.Repository{path: local_repo_path(repo_name)}
   end
 
-  @github (Envar.is_set?("GITHUB_WORKSPACE") &&
-    Envar.get("GITHUB_WORKSPACE")) || nil
   @doc """
   `temp_dir/0` returns the Current Working Directory (CWD).
   Made this a function in case we want to change the location of the
   directory later e.g. to a temporary directory. 
   """ 
   def temp_dir do
-    # coveralls-ignore-start
-    if @github do
-      "/home/runner/"
-    else
-      File.cwd!
-    end
-    # coveralls-ignore-stop
+    File.cwd!
   end
 
   @doc """

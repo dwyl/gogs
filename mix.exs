@@ -69,7 +69,7 @@ defmodule Gogs.MixProject do
 
   defp package() do
     [
-      files: ~w(lib LICENSE mix.exs README.md),
+      files: ~w(lib LICENSE mix.exs README.md test-repo),
       name: "gogs",
       licenses: ["GPL-2.0-or-later"],
       maintainers: ["dwyl"],

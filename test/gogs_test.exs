@@ -30,7 +30,6 @@ defmodule GogsTest do
     mock_response = Gogs.HTTPoisonMock.make_repo_create_post_response_body(repo_name)
     assert response == {:ok, mock_response}
 
-
     # Cleanup:
     Gogs.remote_repo_delete(org_name, repo_name)    
   end
@@ -61,6 +60,15 @@ defmodule GogsTest do
 
     # Clean up:
     delete_local_directory(repo)
+  end
+
+  test "Gogs.clone error branch" do
+    repo = "error"
+    org = "nelsonic"
+    git_repo_url = GogsHelpers.remote_url_ssh(org, repo)
+    path = Gogs.clone(git_repo_url)
+    IO.inspect(path)
+    assert path == GogsHelpers.local_repo_path(repo)
   end
 
   test "local_branch_create/1 creates a new branch on the localhost" do

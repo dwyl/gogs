@@ -17,9 +17,9 @@ defmodule Gogs do
 
   @access_token Envar.get("GOGS_ACCESS_TOKEN")
   @api_base_url GogsHelpers.api_base_url()
-  @git (Application.compile_env(:gogs, :mock) && Gogs.GitMock) || Git
-  @httpoison (Application.compile_env(:gogs, :mock) &&
-                Gogs.HTTPoisonMock) || HTTPoison
+  @mock Application.compile_env(:gogs, :mock)
+  @git (@mock && Gogs.GitMock) || Git
+  @httpoison (@mock && Gogs.HTTPoisonMock) || HTTPoison
 
   @doc """
   `inject_git/0` injects a TestDouble Git in Tests
