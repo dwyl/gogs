@@ -87,7 +87,7 @@ defmodule GogsHelpers do
   def temp_dir do
     # coveralls-ignore-start
     if @github do
-      String.split(@github, "/") |> List.delete_at(-1) |> Enum.join("/") |> IO.inspect()
+      "/home/runner/"
     else
       File.cwd!
     end
