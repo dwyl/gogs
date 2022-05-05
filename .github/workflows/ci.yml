@@ -35,7 +35,8 @@ jobs:
         git branch
         pwd
         echo $GITHUB_WORKSPACE
-        cd /home
+        cd $GITHUB_WORKSPACE
+        cd ..
         pwd
         mkdir test
         cd test
