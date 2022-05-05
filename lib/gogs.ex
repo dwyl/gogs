@@ -172,6 +172,6 @@ defmodule Gogs do
     # Remove trailing whitespace as Git chokes on it:
     branch = String.trim(branch)
     # Push the current branch:
-    Git.push(git_repo, ["-u", "origin", branch])
+    inject_git().push(git_repo, ["-u", "origin", branch])
   end
 end
