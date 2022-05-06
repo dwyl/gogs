@@ -17,7 +17,7 @@ Interface with a **`Gogs`** instance from **`Elixir`**.
 
 </div>
 
-# _Why?_ 🤷
+# _Why?_ 
 
 We needed a way of _easily_ to interact 
 with our **`Gogs`** (GitHub Backup) **Server**
@@ -64,7 +64,7 @@ please ⭐ on GitHub:
 
 ## _How_? 💻
 
-There are a couple of steps 
+There are a couple of steps to get this working in your project.
 ## Install ⬇️
 
 Install the package from [hex.pm](https://hex.pm/docs/publish), 
@@ -78,7 +78,11 @@ def deps do
 end
 ```
 
-Once you've saved your `mix.exs`, run: `mix deps.get`.
+Once you've saved your `mix.exs` file, 
+run: 
+```sh
+mix deps.get
+```
 
 <br />
 
@@ -87,6 +91,7 @@ Once you've saved your `mix.exs`, run: `mix deps.get`.
 For `gogs` to work
 in your `Elixir/Phoenix` App,
 you will need to have 
+a few environment variables defined.
 
 
 ### _Required_ Environment Variables
@@ -101,23 +106,30 @@ There are **3 _required_** environment variables:
 2. `GOGS_ACCESS_TOKEN` - the REST API Access Token 
 See: https://github.com/dwyl/gogs-server#connect-via-rest-api-https
 
-3. 
+3. `GOGS_SSH_PRIVATE_KEY_PATH` - absolute path to the `id_rsa` file
+  on your `localhost` or `Phoenix` server instance.
+
+> @SIMON: this last env var currently not being picked up.
+> So it will just use `~/simon/id_rsa` 
+> You will need to add your `public` key 
+> to the Gogs instance for this to work on your `localhost`
+> see:
+> https://github.com/dwyl/gogs-server#add-ssh-key
 
 
+### _Optional_ Environment Variables
 
-### _Optional_ 
+#### `GOGS_SSH_PORT`
 
 If your **`Gogs` Server** is configured 
-with a non-standard SSH port, 
+with a **_non-standard_ SSH port**, 
 then you need to define it:
 `GOGS_SSH_PORT` e.g: `10022` for our 
 `Gogs` Server deployed to Fly.io
 
-Without this you will not be able to interact
-with the server! 
-
 You can easily discover the port by either visiting your
-Gogs Server Config page: `your-gogs-server.net/admin/config`
+Gogs Server Config page: <br />
+`https://your-gogs-server.net/admin/config`
 
 e.g:
 https://gogs-server.fly.dev/admin/config
@@ -125,21 +137,29 @@ https://gogs-server.fly.dev/admin/config
 ![gogs-ssh-port-config](https://user-images.githubusercontent.com/194400/167105374-ef36752f-80a7-4a77-8c78-2dda44a132f9.png)
 
 
-
-Or if you don't have admin access to view the config,
-view the `ssh` clone link on a repo page,
+Or if you don't have admin access to the config page,
+simply view the `ssh` clone link on a repo page,
 e.g: https://gogs-server.fly.dev/nelsonic/public-repo
 
 ![gogs-ssh-port-example](https://user-images.githubusercontent.com/194400/167104890-31b06fa0-bd23-4ecb-b680-91c92398b0a7.png)
 
-In our case the `GOGS_SSH_PORT` e.g: `10022`.
+In our case the `GOGS_SSH_PORT` e.g: `10022`. <br />
+If you don't set it, then `gogs` will assume TCP port **`22`**.
 
-### SSH Private Key
+#### `GIT_TEMP_DIR_PATH`
 
-In order to use `Gogs.push/1`
-to the remote `Gogs` Server, 
-you will need to have an SSH Private Key.
+If you want to specify a directory where 
+you want to clone `git` repos to,
+create a `GIT_TEMP_DIR_PATH` environment variable.
+e.g:
 
+```sh
+export GIT_TEMP_DIR_PATH=/tmp/
+```
+
+> **Note**: the directory needs to **_already_ exist**.
+
+<br />
 
 ## Usage
 
@@ -147,7 +167,30 @@ Here's basic usage example:
 
 ### 1. Create Repo
 
+```elixir
+# Define the params for the remote repository:
+org_name = "myorg"
+repo_name = "pepsico-contract1234"
+private = false # boolean
+# Create the repo!
+Gogs.remote_repo_create(org_name, repo_name, private)
+```
+
+> ⚠️ **WARNING**: there is currently no way 
+> to create an Organisation on the `Gogs` Server
+> via `REST API` so the `org_name` 
+> _must_ already exists. 
+> e.g: https://gogs-server.fly.dev/myorg
+> We will be figuring out a workaround shortly ...
+> https://github.com/dwyl/gogs/issues/17
+
+
 ### 2. Clone Repo
+
+```elixir
+git_repo_url = GogsHelpers.remote_url_ssh(org_name, repo_name)
+Gogs.clone(git_repo_url)
+```
 
 ### 3. Write to File
 
@@ -162,7 +205,7 @@ Here's basic usage example:
 Complete function reference, 
 see: https://hexdocs.pm/gogs/Gogs.html
 
-# I'm _Stuck!_ 😕
+# I'm _Stuck!_ 🤷
 
 As always, if anything is unclear
 or you are stuck getting this working,
