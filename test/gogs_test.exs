@@ -121,7 +121,8 @@ defmodule GogsTest do
     file_path = Path.join([GogsHelpers.local_repo_path(repo_name), file_name])
     assert {:ok,"text #{repo_name}" } == File.read(file_path)
 
-    {:ok, msg} = Gogs.commit(repo_name, %{message: "test msg", full_name: "Al Ex", email: "c@t.co"})
+    {:ok, msg} = Gogs.commit(repo_name, 
+      %{message: "test msg", full_name: "Al Ex", email: "c@t.co"})
     assert String.contains?(msg, "test msg")
     assert String.contains?(msg, "1 file changed, 1 insertion(+)")
 
