@@ -6,7 +6,7 @@ defmodule Gogs.MixProject do
   def project do
     [
       app: :gogs,
-      version: "0.5.0",
+      version: "0.5.1",
       elixir: @elixir_requirement,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -35,7 +35,7 @@ defmodule Gogs.MixProject do
   defp deps do
     [
       # Make HTTP Requests: github.com/edgurgel/httpoison
-      {:httpoison, "~> 1.8.1"},
+      {:httpoison, "~> 1.8.0"},
 
       # Parse JSON data: github.com/michalmuskala/jason
       {:jason, "~> 1.3.0"},
