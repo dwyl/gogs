@@ -4,7 +4,7 @@ defmodule Gogs.GitMock do
   Sadly, this is necessary until we figure out how to get write-access
   on GitHub CI.
   """
-  # require Logger
+  require Logger
 
   @doc """
   `clone/1` (mock) returns the path of the existing `test-repo`
@@ -20,13 +20,13 @@ defmodule Gogs.GitMock do
   """
   @spec clone(String.t()) :: {:ok, %Git.Repository{}} | {:error, %Git.Error{}}
   def clone(url) do
-    
     case Useful.typeof(url) do
       # e.g: ["ssh://git@gogs.dev/myorg/error-test.git", "tmp/test-repo"]
       "list" ->
         url |> List.first() |> clone()
       
       "binary" ->
+        Logger.info("Gogs.GitMock.clone #{url}")
         if String.contains?(url, "error") do
           {:error, %Git.Error{message: "git clone error (mock)"}}
         else

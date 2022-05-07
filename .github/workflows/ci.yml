@@ -19,7 +19,7 @@ jobs:
       run: |
           git config --global user.name "Al Ex"
           git config --global user.email "c@t.co"
-          mkdir tmp
+          mkdir -p tmp/test-repo
           cp -r test-repo tmp/test-repo
           cat tmp/test-repo/README.md
     - name: Set up Elixir
