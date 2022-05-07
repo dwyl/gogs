@@ -7,7 +7,7 @@ defmodule GogsHelpersTest do
   end
 
   test "temp_dir/1 returns cwd if no dir supplied" do
-    dir = "tmp"
+    dir = Envar.get("GITHUB_WORKSPACE", "tmp")
     assert GogsHelpers.temp_dir(dir) == dir
   end
 
