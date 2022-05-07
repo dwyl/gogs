@@ -6,6 +6,11 @@ defmodule GogsHelpersTest do
     assert GogsHelpers.api_base_url() == "https://gogs-server.fly.dev/api/v1/"
   end
 
+  test "temp_dir/1 returns cwd if no dir supplied" do
+    dir = "tmp"
+    assert GogsHelpers.temp_dir(dir) == dir
+  end
+
   test "make_url/2 (without port) returns a valid GitHub Base URL" do
     url = "github.com"
     git_url = GogsHelpers.make_url(url)

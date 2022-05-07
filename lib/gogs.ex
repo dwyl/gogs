@@ -19,6 +19,7 @@ defmodule Gogs do
   @api_base_url GogsHelpers.api_base_url()
   @mock Application.compile_env(:gogs, :mock)
   @git (@mock && Gogs.GitMock) || Git
+
   @httpoison (@mock && Gogs.HTTPoisonMock) || HTTPoison
 
   @doc """
@@ -62,7 +63,7 @@ defmodule Gogs do
   @spec remote_repo_create(String.t(), String.t(), boolean) :: {:ok, map} | {:error, any}
   def remote_repo_create(org_name, repo_name, private \\ false) do
     url = @api_base_url <> "org/#{org_name}/repos"
-    Logger.info("remote_repo_create: #{url}")
+    Logger.info("remote_repo_create api endpoint: #{url}")
     
     params = %{
       name: repo_name,
@@ -101,14 +102,16 @@ defmodule Gogs do
   """
   @spec clone(String.t()) :: {:ok, any} | {:error, any}
   def clone(git_repo_url) do
-    # IO.inspect("git clone #{git_repo_url}")
-    case inject_git().clone(git_repo_url)  do
+    repo_name = get_repo_name_from_url(git_repo_url)
+    local_path = local_repo_path(repo_name)
+    Logger.info("git clone #{git_repo_url} #{local_path}")
+    case inject_git().clone([git_repo_url, local_path])  do
       {:ok, %Git.Repository{path: path}} ->
         # Logger.info("Cloned repo: #{git_repo_url} to: #{path}")
         path
       {:error, %Git.Error{message: message}} ->
         Logger.error("ERROR: Tried to clone #{git_repo_url}, got: #{message}")
-        get_repo_name_from_url(git_repo_url) |> local_repo_path()
+        local_path
     end
   end
 
@@ -174,4 +177,6 @@ defmodule Gogs do
     # Push the current branch:
     inject_git().push(git_repo, ["-u", "origin", branch])
   end
+
 end
+  

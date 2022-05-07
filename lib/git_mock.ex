@@ -20,10 +20,18 @@ defmodule Gogs.GitMock do
   """
   @spec clone(String.t()) :: {:ok, %Git.Repository{}} | {:error, %Git.Error{}}
   def clone(url) do
-    if String.contains?(url, "error") do
-      {:error, %Git.Error{message: "git clone error (mock)"}}
-    else
-      {:ok, %Git.Repository{path: GogsHelpers.local_repo_path("test-repo")}}
+    
+    case Useful.typeof(url) do
+      # e.g: ["ssh://git@gogs.dev/myorg/error-test.git", "tmp/test-repo"]
+      "list" ->
+        url |> List.first() |> clone()
+      
+      "binary" ->
+        if String.contains?(url, "error") do
+          {:error, %Git.Error{message: "git clone error (mock)"}}
+        else
+          {:ok, %Git.Repository{path: GogsHelpers.local_repo_path("test-repo")}}
+        end
     end
   end
 

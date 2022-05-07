@@ -6,7 +6,7 @@ defmodule Gogs.MixProject do
   def project do
     [
       app: :gogs,
-      version: "0.5.1",
+      version: "0.5.2",
       elixir: @elixir_requirement,
       start_permanent: Mix.env() == :prod,
       deps: deps(),

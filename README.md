@@ -17,7 +17,7 @@ Interface with a **`Gogs`** instance from **`Elixir`**.
 
 </div>
 
-# _Why?_ 
+# _Why?_ 💡
 
 We needed a way of _easily_ to interact 
 with our **`Gogs`** (GitHub Backup) **Server**
@@ -157,7 +157,7 @@ e.g:
 export GIT_TEMP_DIR_PATH=/tmp/
 ```
 
-> **Note**: the directory needs to **_already_ exist**.
+> **Note**: the directory **must _already_ exist**.
 
 <br />
 
@@ -200,10 +200,11 @@ Gogs.clone(git_repo_url)
 
 
 
-# Function Reference / Docs?
+# Function Reference / Docs? 📖 
 
-Complete function reference, 
-see: https://hexdocs.pm/gogs/Gogs.html
+Rather than duplicate all the docs here, 
+please read the complete function reference, 
+on hexdocs: https://hexdocs.pm/gogs/Gogs.html
 
 # I'm _Stuck!_ 🤷
 

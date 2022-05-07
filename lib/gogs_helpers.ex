@@ -4,7 +4,10 @@ defmodule GogsHelpers do
   If you spot any way to make these better, please share:
   https://github.com/dwyl/gogs/issues
   """
+  require Logger
   @github Envar.is_set?("GITHUB_WORKSPACE")
+  @cwd File.cwd!
+  @git_dir Envar.get("GIT_TEMP_DIR_PATH", @cwd)
   @mock Application.compile_env(:gogs, :mock)
 
   @doc """
@@ -68,12 +71,11 @@ defmodule GogsHelpers do
   on the `localhost` i.e. the Elixir/Phoenix server that cloned it.
   """ 
   def local_repo_path(repo_name) do
-    # temp_dir() <> "/" <> repo_name
     # coveralls-ignore-start
     if @github || @mock do
-      Path.join([temp_dir(), "test-repo"])
+      Path.join([temp_dir(@git_dir), "test-repo"])
     else
-      Path.join([temp_dir(), repo_name])
+      Path.join([temp_dir(@git_dir), repo_name])
     end
     # coveralls-ignore-stop
   end
@@ -87,12 +89,19 @@ defmodule GogsHelpers do
   end
 
   @doc """
-  `temp_dir/0` returns the Current Working Directory (CWD).
+  `temp_dir/1` returns the Current Working Directory (CWD).
   Made this a function in case we want to change the location of the
   directory later e.g. to a temporary directory. 
   """ 
-  def temp_dir do
-    File.cwd!
+  def temp_dir(dir \\ nil) do
+    # Logger.info("temp_dir: #{dir} ")
+    if dir && File.exists?(dir) do
+      dir
+    # coveralls-ignore-start
+    else
+      File.cwd!
+    # coveralls-ignore-stop
+    end
   end
 
   @doc """

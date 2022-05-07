@@ -20,7 +20,7 @@ defmodule Gogs.HTTPoisonMock do
     html_url: "https://gogs-server.fly.dev/myorg/replacethis",
     # id: 42,
     mirror: false,
-    name: "test-repo450",
+    name: "replacethis",
     open_issues_count: 0,
     owner: %{
       avatar_url: "https://gogs-server.fly.dev/avatars/2",
@@ -49,7 +49,8 @@ defmodule Gogs.HTTPoisonMock do
       full_name: "myorg/#{repo_name}",
       html_url: "https://gogs-server.fly.dev/myorg/#{repo_name}",
       ssh_url: "ssh://git@gogs-server.fly.dev:10022/myorg/#{repo_name}.git",
-      readme: repo_name
+      readme: repo_name,
+      name: repo_name
     })
   end
 
