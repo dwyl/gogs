@@ -2,7 +2,8 @@ defmodule Gogs.GitMock do
   @moduledoc """
   Mock functions to simulate Git commands.
   Sadly, this is necessary until we figure out how to get write-access
-  on GitHub CI.
+  on GitHub CI. This module is exported for testing convenience/speed 
+  in downstream/dependent apps.
   """
   require Logger
 
@@ -22,6 +23,7 @@ defmodule Gogs.GitMock do
   def clone(url) do
     case Useful.typeof(url) do
       # e.g: ["ssh://git@gogs.dev/myorg/error-test.git", "tmp/test-repo"]
+      # recurse using just the url (String) portion of the list:
       "list" ->
         url |> List.first() |> clone()
       

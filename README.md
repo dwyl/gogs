@@ -43,16 +43,18 @@ This package is that interface.
 
 # _What_? 📦
 
-A library for interacting with `gogs` 
-from our `Elixir`.
-For the complete list of functions,
-see the docs: https://hexdocs.pm/gogs 📚 
+A library for interacting with `gogs` (`git`)
+from our `Elixir` apps. <br />
 
+Hopefully this diagram explains how we are using the package:
 <div align="center">
 
 ![Phoenix-Gogs-Infra-dagram](https://user-images.githubusercontent.com/194400/167098379-e06ee8ae-d652-4464-83d7-e209d442e9e2.png)
 
 </div>
+
+For the complete list of functions,
+please see the docs: https://hexdocs.pm/gogs 📚 
 
 # Who? 👤
 
@@ -65,6 +67,9 @@ please ⭐ on GitHub:
 ## _How_? 💻
 
 There are a couple of steps to get this working in your project.
+
+<br />
+
 ## Install ⬇️
 
 Install the package from [hex.pm](https://hex.pm/docs/publish), 
@@ -73,7 +78,7 @@ by adding `gogs` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:gogs, "~> 0.5.0"}
+    {:gogs, "~> 0.6.0"}
   ]
 end
 ```
@@ -154,10 +159,11 @@ create a `GIT_TEMP_DIR_PATH` environment variable.
 e.g:
 
 ```sh
-export GIT_TEMP_DIR_PATH=/tmp/
+export GIT_TEMP_DIR_PATH=tmp
 ```
 
 > **Note**: the directory **must _already_ exist**.
+> (it won't be created if it's not there ...)
 
 <br />
 
@@ -196,20 +202,44 @@ Gogs.clone(git_repo_url)
 
 ### 4. Commit Changes
 
-### 5. Push
+### 5. Push to `Gogs` Remote
 
 
 
-# Function Reference / Docs? 📖 
+## Function Reference / Docs? 📖 
 
 Rather than duplicate all the docs here, 
 please read the complete function reference, 
 on hexdocs: https://hexdocs.pm/gogs/Gogs.html
 
-# I'm _Stuck!_ 🤷
+## I'm _Stuck!_ 🤷
 
 As always, if anything is unclear
 or you are stuck getting this working,
 please open an issue!
 [github.com/dwyl/gogs/issues](https://github.com/dwyl/gogs/issues/8)
 We're here to help!
+
+<br />
+
+# ⚠️ Caution!
+
+This package is provided "**as is**". 
+We make ***no guarantee/warranty*** that it _works_.
+We _cannot_ be held responsible
+for any undesirable effects of it's usage.
+e.g: if you use the [`Gogs.delete/1`](https://hexdocs.pm/gogs/Gogs.html#delete/1)
+it will _permanently/irrecoverably_ **`delete`** the repo. 
+Use it with caution!
+
+That being said,
+we are using this package in "production".
+It works for _us_ an we _maintain_ it.
+If you want to use it, go for it!
+But we cannot "support" your usage
+beyond answering questions on GitHub.
+
+If you spot anything that can be improved,
+please open an 
+[https://github.com/dwyl/gogs/issues](https://github.com/dwyl/gogs/issues),
+we're very happy to discuss!
