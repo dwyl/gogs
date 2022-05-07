@@ -19,7 +19,6 @@ defmodule Gogs do
   @api_base_url GogsHelpers.api_base_url()
   @mock Application.compile_env(:gogs, :mock)
   @git (@mock && Gogs.GitMock) || Git
-
   @httpoison (@mock && Gogs.HTTPoisonMock) || HTTPoison
 
   @doc """

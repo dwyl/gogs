@@ -19,9 +19,9 @@ jobs:
       run: |
           git config --global user.name "Al Ex"
           git config --global user.email "c@t.co"
-          mkdir tmp
-          cp -r test-repo tmp/test-repo
-          cat tmp/test-repo/README.md
+          # mkdir tmp
+          # cp -r test-repo tmp/test-repo
+          # cat tmp/test-repo/README.md
     - name: Set up Elixir
       uses: erlef/setup-elixir@885971a72ed1f9240973bd92ab57af8c1aa68f24
       with:
@@ -42,6 +42,6 @@ jobs:
         GOGS_SSH_PORT: 10022
         GOGS_URL: gogs-server.fly.dev
         GOGS_ACCESS_TOKEN: ${{ secrets.GOGS_ACCESS_TOKEN }}
-        GIT_TEMP_DIR_PATH: tmp
+        GIT_TEMP_DIR_PATH: $GITHUB_WORKSPACE
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
