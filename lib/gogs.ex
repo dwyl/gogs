@@ -15,42 +15,16 @@ defmodule Gogs do
   import GogsHelpers
   require Logger
 
-  @access_token Envar.get("GOGS_ACCESS_TOKEN")
   @api_base_url GogsHelpers.api_base_url()
   @mock Application.compile_env(:gogs, :mock)
+  Logger.info("config :gogs, mock: #{to_string(@mock)}")
   @git (@mock && Gogs.GitMock) || Git
-  @httpoison (@mock && Gogs.HTTPoisonMock) || HTTPoison
 
   @doc """
   `inject_git/0` injects a `Git` TestDouble in Tests & CI
   so we don't have duplicate mocks in the downstream app.
   """
   def inject_git, do: @git
-
-  @doc """
-  `inject_poison/0` injects a TestDouble of HTTPoison in Test.
-  see: github.com/dwyl/elixir-auth-google/issues/35
-  """
-  def inject_poison, do: @httpoison
-
-  @doc """
-  `post/2` accepts two arguments: `url` and `params`. 
-  Makes an `HTTP POST` request to the specified `url`
-  passing in the `params` as the request body.
-  Auth Headers and Content-Type are implicit.
-  """
-  @spec post(String.t(), map) :: {:ok, map} | {:error, any}
-  def post(url, params \\ %{}) do
-    # IO.inspect(url, label: url)
-    body = Jason.encode!(params)
-    headers = [
-      {"Accept", "application/json"},
-      {"Authorization", "token #{@access_token}"},
-      {"Content-Type", "application/json"}
-    ]
-    inject_poison().post(url, body, headers)
-    |> parse_body_response()
-  end
 
   @doc """
   `remote_repo_create/3` accepts 3 arguments: `org_name`, `repo_name` & `private`.
@@ -70,17 +44,7 @@ defmodule Gogs do
       description: repo_name,
       readme: repo_name
     }
-    post(url, params)
-  end
-
-  @doc """
-  `delete/1` accepts a single argument `url`; 
-  the `url` for the repository to be deleted.
-  """
-  @spec delete(String.t()) :: {:ok, map} | {:error, any}
-  def delete(url) do
-    inject_poison().delete(url <> "?token=#{@access_token}")
-    |> parse_body_response()
+    GogsHttp.post(url, params)
   end
 
   @doc """
@@ -92,7 +56,7 @@ defmodule Gogs do
   def remote_repo_delete(org_name, repo_name) do
     url = @api_base_url <> "repos/#{org_name}/#{repo_name}"
     Logger.info("remote_repo_delete: #{url}")
-    delete(url)
+    GogsHttp.delete(url)
   end
 
   @doc """
