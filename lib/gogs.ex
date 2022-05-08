@@ -10,7 +10,7 @@ defmodule Gogs do
   so we have adopted a "hybrid" approach.
 
   If anything is unclear, please open an issue: 
-  https://github.com/dwyl/gogs/issues
+  [github.com/dwyl/**gogs/issues**](https://github.com/dwyl/gogs/issues)
   """
   import GogsHelpers
   require Logger

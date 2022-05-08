@@ -1,13 +1,15 @@
 defmodule Gogs.HTTPoisonMock do
   @moduledoc """
-    This is a set up to mock (stub) our API requests to the Gogs API
-    so that we can test all of our code (with Mocks) on GitHub CI.
-    These are just functions that pattern match on the entries
-    and return the expected responses.
-    If you know of a better way of doing this 
-    (without introducing more dependencies ...)
-    Please share: https://github.com/dwyl/gogs/issues
+  Mock (stub) our API requests to the Gogs API
+  so that we can test all of our code (with Mocks) on GitHub CI.
+  These functions pattern match on the params
+  and return the expected responses.
+  If you know of a better way of doing this 
+  (preferably without introducing more dependencies ...)
+  Please share: 
+  [github.com/dwyl/**gogs/issues**](https://github.com/dwyl/gogs/issues)
   """
+  require Logger
   @remote_repo_create_response_body %{
     clone_url: "https://gogs-server.fly.dev/myorg/replacethis.git",
     # created_at: "0001-01-01T00:00:00Z",
@@ -55,11 +57,23 @@ defmodule Gogs.HTTPoisonMock do
   end
 
   @doc """
-  `post/3` stubs the HTTPoison post function when parameters match test vars.
+  `get/2` mocks the HTTPoison.get/2 function when parameters match test vars.
   Feel free refactor this if you can make it pretty. 
   """
-  def post("https://gogs-server.fly.dev/api/v1/org/myorg/repos", body, _headers) do
-    # IO.inspect("Gogs.HTTPoisonMock.post/3 called!")
+  def get(url, _headers) do
+    Logger.debug("Gogs.HTTPoisonMock.get/2 #{url}")
+    response_body = 
+      make_repo_create_post_response_body("tbd")
+      |> Jason.encode!()
+    {:ok, %{body: response_body}}
+  end
+
+  @doc """
+  `post/3` mocks the HTTPoison.post/3 function when parameters match test vars.
+  Feel free refactor this if you can make it pretty. 
+  """
+  def post(url, body, _headers) do
+    Logger.debug("Gogs.HTTPoisonMock.post/3 #{url}")
     body_map = Jason.decode!(body) |> Useful.atomize_map_keys()
     response_body = 
       make_repo_create_post_response_body(body_map.name)
@@ -68,7 +82,7 @@ defmodule Gogs.HTTPoisonMock do
   end
 
   @doc """
-  `delete/1` stubs the HTTPoison `delete` function.
+  `delete/1` mocks the HTTPoison `delete` function.
   Feel free refactor this if you can make it pretty. 
   """
   def delete(url) do

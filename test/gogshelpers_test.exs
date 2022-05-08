@@ -27,15 +27,4 @@ defmodule GogsHelpersTest do
     remote_url = GogsHelpers.remote_url(git_url, "nelsonic", "public-repo")
     assert remote_url == "ssh://git@gogs-server.fly.dev:10022/nelsonic/public-repo.git"
   end
-
-  # can you think of a better way of testing/simulating this error condition? 
-  test "parse_body_response({:error, err})" do
-    assert GogsHelpers.parse_body_response({:error, "err"}) == {:error, "err"}
-  end
-
-  # We've seen an empty body returned in practice. But how to test it ...? 
-  test "parse_body_response({:ok, response}) with empty/nil body" do
-    res = %{body: ""}
-    assert GogsHelpers.parse_body_response({:ok, res}) == {:error, :no_body}
-  end
 end

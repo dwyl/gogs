@@ -103,24 +103,4 @@ defmodule GogsHelpers do
     # coveralls-ignore-stop
     end
   end
-
-  @doc """
-  `parse_body_response/1` parses the response returned by the Gogs Server
-  so your app can use the resulting JSON.
-  """
-  @spec parse_body_response({atom, String.t()} | {:error, any}) :: {:ok, map} | {:error, any}
-  def parse_body_response({:error, err}), do: {:error, err}
-
-  def parse_body_response({:ok, response}) do
-    # IO.inspect(response)
-    body = Map.get(response, :body)
-    # make keys of map atoms for easier access in templates
-    if body == nil || byte_size(body) == 0 do
-      # IO.inspect("response body is nil")
-      {:error, :no_body}
-    else
-      {:ok, str_key_map} = Jason.decode(body)
-      {:ok, Useful.atomize_map_keys(str_key_map)}
-    end
-  end
 end
