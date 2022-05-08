@@ -11,11 +11,15 @@ defmodule GogsHttpTest do
     res = %{body: ""}
     assert GogsHttp.parse_body_response({:ok, res}) == {:error, :no_body}
   end
-  
-  test "GogsHttp.get/1 gets (or mocks) an HTTP GET request to Gogs Server" do
-    url = "https://gogs-server.fly.dev/api/v1/repos/nelsonic/public-repo"
-    {:ok, res} = GogsHttp.get(url)
 
-    assert true == true
+  test "GogsHttp.get/1 gets (or mocks) an HTTP GET request to Gogs Server" do
+    repo_name = "public-repo"
+    url = "https://gogs-server.fly.dev/api/v1/repos/myorg/#{repo_name}"
+    {:ok, response} = GogsHttp.get(url)
+    # remove unpredictable fields from response when mock:false
+    drop_fields = ~w(created_at default_branch description id readme updated_at watchers_count)a
+    response = Map.drop(response, drop_fields)
+    mock_response = Gogs.HTTPoisonMock.make_repo_create_post_response_body(repo_name)
+    assert response == mock_response
   end
 end

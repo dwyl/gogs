@@ -13,8 +13,8 @@ defmodule Gogs.HTTPoisonMock do
   @remote_repo_create_response_body %{
     clone_url: "https://gogs-server.fly.dev/myorg/replacethis.git",
     # created_at: "0001-01-01T00:00:00Z",
-    default_branch: "",
-    description: "replacethis",
+    # default_branch: "public-repo",
+    # description: "replacethis",
     empty: false,
     fork: false,
     forks_count: 0,
@@ -39,7 +39,7 @@ defmodule Gogs.HTTPoisonMock do
     ssh_url: "ssh://git@gogs-server.fly.dev:10022/myorg/replacethis.git",
     stars_count: 0,
     # updated_at: "0001-01-01T00:00:00Z",
-    watchers_count: 0,
+    # watchers_count: 0,
     website: ""
   }
 
@@ -47,11 +47,11 @@ defmodule Gogs.HTTPoisonMock do
   def make_repo_create_post_response_body(repo_name) do
     Map.merge(@remote_repo_create_response_body, %{
       clone_url: "https://gogs-server.fly.dev/myorg/#{repo_name}.git",
-      description: repo_name,
+      # description: repo_name,
       full_name: "myorg/#{repo_name}",
       html_url: "https://gogs-server.fly.dev/myorg/#{repo_name}",
       ssh_url: "ssh://git@gogs-server.fly.dev:10022/myorg/#{repo_name}.git",
-      readme: repo_name,
+      # readme: repo_name,
       name: repo_name
     })
   end
@@ -62,8 +62,9 @@ defmodule Gogs.HTTPoisonMock do
   """
   def get(url, _headers) do
     Logger.debug("Gogs.HTTPoisonMock.get/2 #{url}")
+    repo_name = GogsHelpers.get_repo_name_from_url(url)
     response_body = 
-      make_repo_create_post_response_body("tbd")
+      make_repo_create_post_response_body(repo_name)
       |> Jason.encode!()
     {:ok, %{body: response_body}}
   end

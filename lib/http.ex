@@ -6,7 +6,6 @@ defmodule GogsHttp do
   If anything is unclear, please open an issue: 
   [github.com/dwyl/**gogs/issues**](https://github.com/dwyl/gogs/issues)
   """
-  import GogsHelpers
   require Logger
 
   @access_token Envar.get("GOGS_ACCESS_TOKEN")
@@ -34,7 +33,7 @@ defmodule GogsHttp do
   def parse_body_response({:error, err}), do: {:error, err}
 
   def parse_body_response({:ok, response}) do
-    Logger.debug(response)
+    # Logger.debug(response)
     body = Map.get(response, :body)
     if body == nil || byte_size(body) == 0 do
       Logger.warning("GogsHttp.parse_body_response: response body is nil!")
@@ -55,7 +54,7 @@ defmodule GogsHttp do
   @spec get(String.t()) :: {:ok, map} | {:error, any}
   def get(url) do
     Logger.info("GogsHttp.get #{url}")
-    inject_poison().get(url, @headers) |> IO.inspect()
+    inject_poison().get(url, @headers)
     |> parse_body_response()
   end
 
