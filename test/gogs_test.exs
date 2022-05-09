@@ -1,15 +1,17 @@
 defmodule GogsTest do
   use ExUnit.Case, async: false
+  require Logger
   doctest Gogs
   # @github_url "https://github.com/"
   @cwd File.cwd!
   @git_dir Envar.get("GIT_TEMP_DIR_PATH", @cwd)
+  @mock Application.compile_env(:gogs, :mock)
 
   # Cleanup helper functions
   defp delete_local_directory(dirname) do
     # IO.inspect(File.cwd(), label: "File.cwd()")
     path = Path.join(GogsHelpers.temp_dir(@git_dir), dirname)
-    IO.inspect(path)
+    Logger.debug("GogsTest.delete_local_directory: #{path}")
     File.rm_rf(path)
   end
 
@@ -43,13 +45,13 @@ defmodule GogsTest do
     Gogs.remote_repo_delete(org_name, repo_name)    
   end
 
-  test "remote_read_raw/3 retrieves the contents of the README.md file" do
+  test "Gogs.remote_read_raw/3 retrieves the contents of the README.md file" do
     org_name = "myorg"
     repo_name = "public-repo"
     file_name = "README.md"
     {:ok, %HTTPoison.Response{ body: response_body}} = 
       Gogs.remote_read_raw(org_name, repo_name, file_name)
-    IO.inspect(response_body)
+    # IO.inspect(response_body)
     expected = "# public-repo\n\nplease don't update this. the tests read it."
     assert expected == response_body
   end
@@ -147,26 +149,38 @@ defmodule GogsTest do
     delete_local_directory(repo_name)
   end
 
-  test "push/2 pushes the commit to the remote repo" do
-    repo_name = create_test_git_repo("myorg")
-    
+  test "Gogs.push/2 pushes the commit to the remote repo" do
+    org_name = "myorg"
+    repo_name = create_test_git_repo(org_name)
     file_name = "README.md"
+    text = "text #{repo_name}"
     assert :ok ==
-      Gogs.local_file_write_text(repo_name, file_name, "text #{repo_name}")
+      Gogs.local_file_write_text(repo_name, file_name, text)
 
     # Confirm the text was written to the file:
     file_path = Path.join([GogsHelpers.local_repo_path(repo_name), file_name])
     assert {:ok,"text #{repo_name}" } == File.read(file_path)
 
     # Commit the updated text:
-    {:ok, msg} = Gogs.commit(repo_name, %{message: "test msg", full_name: "Al Ex", email: "c@t.co"})
+    {:ok, msg} = Gogs.commit(repo_name, 
+      %{message: "test msg", full_name: "Al Ex", email: "c@t.co"})
     assert String.contains?(msg, "test msg")
 
     # Push to Gogs Server!
     Gogs.push(repo_name)
 
+    # Confirm the README.md of the newly created repo was updated:
+    {:ok, %HTTPoison.Response{ body: response_body}} = 
+      Gogs.remote_read_raw(org_name, repo_name, file_name)
+    
+    if @mock do
+      assert response_body == 
+        "# public-repo\n\nplease don't update this. the tests read it."
+    else
+      assert response_body == text
+    end
     # Cleanup!
-    Gogs.remote_repo_delete("myorg", repo_name)
-    # delete_local_directory(repo_name)
+    Gogs.remote_repo_delete(org_name, repo_name)
+    delete_local_directory(repo_name)
   end
 end

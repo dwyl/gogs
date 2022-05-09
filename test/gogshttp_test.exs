@@ -1,5 +1,6 @@
 defmodule GogsHttpTest do
   use ExUnit.Case, async: true
+  # Function tests that work both when mock: true and false!
 
   # can you think of a better way of testing/simulating this error condition? 
   test "GogsHttp.parse_body_response({:error, err})" do
@@ -17,7 +18,7 @@ defmodule GogsHttpTest do
     url = "https://gogs-server.fly.dev/api/v1/repos/myorg/#{repo_name}"
     {:ok, response} = GogsHttp.get(url)
     # remove unpredictable fields from response when mock:false
-    drop_fields = ~w(created_at default_branch description id readme updated_at watchers_count)a
+    drop_fields = ~w(created_at default_branch description id readme size updated_at watchers_count)a
     response = Map.drop(response, drop_fields)
     mock_response = Gogs.HTTPoisonMock.make_repo_create_post_response_body(repo_name)
     assert response == mock_response

@@ -5,7 +5,6 @@ defmodule GogsHelpers do
   https://github.com/dwyl/gogs/issues
   """
   require Logger
-  @github Envar.is_set?("GITHUB_WORKSPACE")
   @cwd File.cwd!
   @git_dir Envar.get("GIT_TEMP_DIR_PATH", @cwd)
   @mock Application.compile_env(:gogs, :mock)
@@ -72,7 +71,7 @@ defmodule GogsHelpers do
   """ 
   def local_repo_path(repo_name) do
     # coveralls-ignore-start
-    if @github || @mock do
+    if @mock do
       Path.join([temp_dir(@git_dir), "test-repo"])
     else
       Path.join([temp_dir(@git_dir), repo_name])

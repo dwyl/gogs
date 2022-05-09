@@ -19,9 +19,9 @@ Interface with a **`Gogs`** instance from **`Elixir`**.
 
 # _Why?_ 💡
 
-We needed a way of _easily_ to interact 
+We needed an _easy_ way to interact 
 with our **`Gogs`** (GitHub Backup) **Server**
-from our **`Elixir`** / **`Phoenix`** Applications.
+from our **`Elixir/Phoenix`** App.
 This package is that interface. 
 
 > **Note**: We were _briefly_ tempted 
@@ -80,7 +80,7 @@ by adding `gogs` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:gogs, "~> 0.6.0"}
+    {:gogs, "~> 0.7.0"}
   ]
 end
 ```
@@ -131,7 +131,8 @@ See: https://github.com/dwyl/gogs-server#connect-via-rest-api-https
 If your **`Gogs` Server** is configured 
 with a **_non-standard_ SSH port**, 
 then you need to define it:
-`GOGS_SSH_PORT` e.g: `10022` for our 
+`GOGS_SSH_PORT` <br />
+e.g: `10022` for our 
 `Gogs` Server deployed to Fly.io
 
 You can easily discover the port by either visiting your

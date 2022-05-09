@@ -35,7 +35,7 @@ defmodule Gogs.HTTPoisonMock do
     parent: nil,
     permissions: %{admin: true, pull: true, push: true},
     private: false,
-    size: 0,
+    # size: 0,
     ssh_url: "ssh://git@gogs-server.fly.dev:10022/myorg/replacethis.git",
     stars_count: 0,
     # updated_at: "0001-01-01T00:00:00Z",

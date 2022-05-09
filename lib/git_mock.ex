@@ -47,6 +47,7 @@ defmodule Gogs.GitMock do
   """
   @spec push(%Git.Repository{}, [any]) :: {:ok, any}
   def push(%Git.Repository{path: repo_path}, _args) do
+    Logger.info("Gogs.GitMock.push #{repo_path}")
     repo_name = GogsHelpers.get_repo_name_from_url(repo_path <> ".git")
     {:ok, "To ssh://gogs-server.fly.dev:10022/myorg/#{repo_name}.git\n"}
   end
