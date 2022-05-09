@@ -116,12 +116,22 @@ defmodule Gogs do
   end
 
   @doc """
+  `local_file_read/3` reads the raw text from the `file_name`,
+  params: `org_name`, `repo_name` & `file_name`
+  """ 
+  @spec local_file_read(String.t(), String.t(), String.t()) :: String.t()
+  def local_file_read(_org_name, repo_name, file_name) do
+    file_path = Path.join([local_repo_path(repo_name), file_name])
+    File.read!(file_path)
+  end
+
+  @doc """
   `local_file_write_text/3` writes the desired `text`,
   to the `file_name` in the `repo_name`. 
   Touches the file in case it doesn't already exist.
   """ 
-  @spec local_file_write_text(String.t(), String.t(), String.t()) :: :ok | {:error, any}
-  def local_file_write_text(repo_name, file_name, text) do
+  @spec local_file_write_text(String.t(), String.t(), String.t(), String.t()) :: :ok | {:error, any}
+  def local_file_write_text(_org_name, repo_name, file_name, text) do
     file_path = Path.join([local_repo_path(repo_name), file_name])
     Logger.info("attempting to write to #{file_path}")
     File.touch!(file_path)

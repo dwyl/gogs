@@ -115,14 +115,15 @@ defmodule GogsTest do
 
 
   test "write_text_to_file/3 writes text to a specified file" do
-    repo_name = create_test_git_repo("myorg")
+    org_name = "myorg"
+    repo_name = create_test_git_repo(org_name)
     file_name = "README.md"
+    text = "text #{repo_name}"
     assert :ok ==
-      Gogs.local_file_write_text(repo_name, file_name, "text #{repo_name}")
+      Gogs.local_file_write_text(org_name, repo_name, file_name, text)
 
     # Confirm the text was written to the file:
-    file_path = Path.join([GogsHelpers.local_repo_path(repo_name), file_name])
-    assert {:ok,"text #{repo_name}" } == File.read(file_path)
+    assert text == Gogs.local_file_read(org_name, repo_name, file_name)
 
     # Cleanup!
     Gogs.remote_repo_delete("myorg", repo_name)
@@ -130,10 +131,11 @@ defmodule GogsTest do
   end
 
   test "commit/2 creates a commit in the repo" do
-    repo_name = create_test_git_repo("myorg")
+    org_name = "myorg"
+    repo_name = create_test_git_repo(org_name)
     file_name = "README.md"
     assert :ok ==
-      Gogs.local_file_write_text(repo_name, file_name, "text #{repo_name}")
+      Gogs.local_file_write_text(org_name, repo_name, file_name, "text #{repo_name}")
 
     # Confirm the text was written to the file:
     file_path = Path.join([GogsHelpers.local_repo_path(repo_name), file_name])
@@ -155,7 +157,7 @@ defmodule GogsTest do
     file_name = "README.md"
     text = "text #{repo_name}"
     assert :ok ==
-      Gogs.local_file_write_text(repo_name, file_name, text)
+      Gogs.local_file_write_text(org_name, repo_name, file_name, text)
 
     # Confirm the text was written to the file:
     file_path = Path.join([GogsHelpers.local_repo_path(repo_name), file_name])
