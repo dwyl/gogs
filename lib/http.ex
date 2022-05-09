@@ -33,7 +33,7 @@ defmodule GogsHttp do
   def parse_body_response({:error, err}), do: {:error, err}
 
   def parse_body_response({:ok, response}) do
-    # Logger.debug(response)
+    # Logger.debug(response) # very noisy!
     body = Map.get(response, :body)
     if body == nil || byte_size(body) == 0 do
       Logger.warning("GogsHttp.parse_body_response: response body is nil!")
@@ -53,9 +53,24 @@ defmodule GogsHttp do
   """
   @spec get(String.t()) :: {:ok, map} | {:error, any}
   def get(url) do
-    Logger.info("GogsHttp.get #{url}")
+    Logger.debug("GogsHttp.get #{url}")
     inject_poison().get(url, @headers)
     |> parse_body_response()
+  end
+
+  @doc """
+  `get_raw/1` as it's name suggests gets the raw data
+  (expects the reponse to be plaintext not JSON)
+  accepts one argument: `url` the REST API endpoint. 
+  Makes an `HTTP GET` request to the specified `url`.
+  Auth Headers and Content-Type are implicit.
+  returns `{:ok, map}`
+  """
+  @spec get_raw(String.t()) :: {:ok, map} | {:error, any}
+  def get_raw(url) do
+    Logger.debug("GogsHttp.get_raw #{url}")
+    headers = [{"Authorization", "token #{@access_token}"}]
+    inject_poison().get(url, headers)
   end
 
   @doc """
@@ -66,7 +81,7 @@ defmodule GogsHttp do
   """
   @spec post(String.t(), map) :: {:ok, map} | {:error, any}
   def post(url, params \\ %{}) do
-    Logger.info("GogsHttp.post #{url}")
+    Logger.debug("GogsHttp.post #{url}")
     body = Jason.encode!(params)
     inject_poison().post(url, body, @headers)
     |> parse_body_response()
@@ -78,7 +93,7 @@ defmodule GogsHttp do
   """
   @spec delete(String.t()) :: {:ok, map} | {:error, any}
   def delete(url) do
-    Logger.info("GogsHttp.delete #{url}")
+    Logger.debug("GogsHttp.delete #{url}")
     inject_poison().delete(url <> "?token=#{@access_token}")
     |> parse_body_response()
   end

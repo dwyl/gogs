@@ -56,17 +56,28 @@ defmodule Gogs.HTTPoisonMock do
     })
   end
 
+  @raw_response {:ok, %HTTPoison.Response{
+    body: "# public-repo\n\nplease don't update this. the tests read it.",
+    status_code: 200
+  }}
+
   @doc """
   `get/2` mocks the HTTPoison.get/2 function when parameters match test vars.
   Feel free refactor this if you can make it pretty. 
   """
   def get(url, _headers) do
     Logger.debug("Gogs.HTTPoisonMock.get/2 #{url}")
-    repo_name = GogsHelpers.get_repo_name_from_url(url)
-    response_body = 
-      make_repo_create_post_response_body(repo_name)
-      |> Jason.encode!()
-    {:ok, %{body: response_body}}
+    case String.contains?(url, "/raw/") do
+      true ->
+        @raw_response
+      false ->
+        Logger.debug("Gogs.HTTPoisonMock.get/2 #{url}")
+        repo_name = GogsHelpers.get_repo_name_from_url(url)
+        response_body = 
+          make_repo_create_post_response_body(repo_name)
+          |> Jason.encode!()
+        {:ok, %{body: response_body}}
+    end
   end
 
   @doc """

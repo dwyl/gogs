@@ -17,7 +17,7 @@ defmodule Gogs do
 
   @api_base_url GogsHelpers.api_base_url()
   @mock Application.compile_env(:gogs, :mock)
-  Logger.info("config :gogs, mock: #{to_string(@mock)}")
+  Logger.debug("config :gogs, mock: #{to_string(@mock)}")
   @git (@mock && Gogs.GitMock) || Git
 
   @doc """
@@ -58,6 +58,29 @@ defmodule Gogs do
     Logger.info("remote_repo_delete: #{url}")
     GogsHttp.delete(url)
   end
+
+  @doc """
+  `remote_read_file/3` reads a file from the remote repo.
+  Accepts 4 arguments: `org_name`, `repo_name`, `file_name` and `branch_name`.
+  The 4<sup>th</sup> argument is *optional* and defaults to `"master"` 
+  (the default branch for a repo hosted on `Gogs`).
+  Makes a `GET` request to the remote `Gogs` instance as defined 
+  by the environment variable `GOGS_URL`.
+  Returns `{:ok, %HTTPoison.Response{ body: response_body}}`
+  Uses REST API Endpoint:
+  ```sh
+  GET /repos/:username/:reponame/raw/:branchname/:path
+  ```
+  Ref: https://github.com/gogs/docs-api/blob/master/Repositories/Contents.md#get-contents
+  """
+  @spec remote_read_raw(String.t(), String.t(), String.t(), String.t()) :: {:ok, map} | {:error, any}
+  def remote_read_raw(org_name, repo_name, file_name, branch_name \\ "master") do
+    url = @api_base_url <> "repos/#{org_name}/#{repo_name}/raw/#{branch_name}/#{file_name}"
+    Logger.debug("Gogs.remote_read_file: #{url}")
+    GogsHttp.get_raw(url)
+
+  end
+
 
   @doc """
   `clone/1` clones a remote git repository based on `git_repo_url`

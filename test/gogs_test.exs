@@ -43,6 +43,17 @@ defmodule GogsTest do
     Gogs.remote_repo_delete(org_name, repo_name)    
   end
 
+  test "remote_read_raw/3 retrieves the contents of the README.md file" do
+    org_name = "myorg"
+    repo_name = "public-repo"
+    file_name = "README.md"
+    {:ok, %HTTPoison.Response{ body: response_body}} = 
+      Gogs.remote_read_raw(org_name, repo_name, file_name)
+    IO.inspect(response_body)
+    expected = "# public-repo\n\nplease don't update this. the tests read it."
+    assert expected == response_body
+  end
+
   test "Gogs.clone clones a known remote repository Gogs on Fly.io" do
     org = "nelsonic"
     repo = "public-repo"
