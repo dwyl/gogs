@@ -110,6 +110,7 @@ defmodule GogsTest do
     # Cleanup!
     Gogs.remote_repo_delete("myorg", repo_name)
     delete_local_directory(repo_name)
+    # Test error branch once the local repo has been deleted:
     Git.branch(GogsHelpers.local_git_repo(repo_name), ~w(-D draft))
   end
 
@@ -123,7 +124,7 @@ defmodule GogsTest do
       Gogs.local_file_write_text(org_name, repo_name, file_name, text)
 
     # Confirm the text was written to the file:
-    assert text == Gogs.local_file_read(org_name, repo_name, file_name)
+    assert {:ok, text} == Gogs.local_file_read(org_name, repo_name, file_name)
 
     # Cleanup!
     Gogs.remote_repo_delete("myorg", repo_name)

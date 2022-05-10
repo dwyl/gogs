@@ -122,7 +122,7 @@ defmodule Gogs do
   @spec local_file_read(String.t(), String.t(), String.t()) :: String.t()
   def local_file_read(_org_name, repo_name, file_name) do
     file_path = Path.join([local_repo_path(repo_name), file_name])
-    File.read!(file_path)
+    File.read(file_path)
   end
 
   @doc """

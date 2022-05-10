@@ -58,7 +58,7 @@ how we are using the package:
 For the complete list of functions,
 please see the docs: https://hexdocs.pm/gogs 📚 
 
-# Who? 👤
+# Who? 👤 
 
 This library is used by our (`Phoenix`) GitHub Backup App. <br />
 If you find it helpful for your project,
@@ -69,23 +69,27 @@ please ⭐ on GitHub:
 ## _How_? 💻
 
 There are a couple of steps to get this working in your project.
+It should only take **`2 mins`** if you already have your
+**`Gogs` Server** _deployed_ (_or access to an existing instance_).
+
+
 
 <br />
 
 ## Install ⬇️
 
 Install the package from [hex.pm](https://hex.pm/docs/publish), 
-by adding `gogs` to your list of dependencies in `mix.exs`:
+by adding `gogs` to the list of dependencies in your `mix.exs` file:
 
 ```elixir
 def deps do
   [
-    {:gogs, "~> 0.7.0"}
+    {:gogs, "~> 0.8.0"}
   ]
 end
 ```
 
-Once you've saved your `mix.exs` file, 
+Once you've saved the `mix.exs` file, 
 run: 
 ```sh
 mix deps.get
@@ -99,6 +103,10 @@ For `gogs` to work
 in your `Elixir/Phoenix` App,
 you will need to have 
 a few environment variables defined.
+
+There are 3 _required_ and 2 _optional_.
+Make sure you read through the next section
+to determine if you _need_ the _optional_ ones.
 
 
 ### _Required_ Environment Variables
@@ -131,7 +139,7 @@ See: https://github.com/dwyl/gogs-server#connect-via-rest-api-https
 If your **`Gogs` Server** is configured 
 with a **_non-standard_ SSH port**, 
 then you need to define it:
-`GOGS_SSH_PORT` <br />
+**`GOGS_SSH_PORT`** <br />
 e.g: `10022` for our 
 `Gogs` Server deployed to Fly.io
 
@@ -142,8 +150,9 @@ Gogs Server Config page: <br />
 e.g:
 https://gogs-server.fly.dev/admin/config
 
-![gogs-ssh-port-config](https://user-images.githubusercontent.com/194400/167105374-ef36752f-80a7-4a77-8c78-2dda44a132f9.png)
+<!-- Move these screenshots to the gogs-server repo ssh section? -->
 
+![gogs-ssh-port-config](https://user-images.githubusercontent.com/194400/167105374-ef36752f-80a7-4a77-8c78-2dda44a132f9.png)
 
 Or if you don't have admin access to the config page,
 simply view the `ssh` clone link on a repo page,
@@ -172,14 +181,36 @@ export GIT_TEMP_DIR_PATH=tmp
 
 ## Usage
 
-Here's basic usage example:
+If you just want to _read_ 
+the contents of a file hosted on
+a `Gogs` Server,
+write code similar to this:
+
+```elixir
+org_name = "myorg"
+repo_name = "public-repo"
+file_name = "README.md"
+{:ok, %HTTPoison.Response{ body: response_body}} = 
+  Gogs.remote_read_raw(org_name, repo_name,file_name)
+# use the response_body (plaintext data)
+```
+
+This is exactly the use-case presented in our demo app:
+[dwyl/**gogs-demo**#4-create-function](https://github.com/dwyl/gogs-demo#4-create-function-to-interact-with-gogs-repo)
+
+
+
+<br />
+
+Here's a more real-world scenario 
+in 7 easy steps:
 
 ### 1. Create Repo
 
 ```elixir
 # Define the params for the remote repository:
 org_name = "myorg"
-repo_name = "pepsico-contract1234"
+repo_name = "repo-name"
 private = false # boolean
 # Create the repo!
 Gogs.remote_repo_create(org_name, repo_name, private)
@@ -201,27 +232,66 @@ git_repo_url = GogsHelpers.remote_url_ssh(org_name, repo_name)
 Gogs.clone(git_repo_url)
 ```
 
-### 3. Read Contents of File
+> Provided you have setup the environment variables,
+> and your `Elixir/Phoenix` App has write access to the filesystem,
+> this should work without any issues.
+> We haven't seen any in practice. 
+> But if you get stuck at this step,
+> [open an issue](https://github.com/dwyl/gogs/issues)
 
-TODO: https://github.com/dwyl/gogs/issues/21
+### 3. Read Contents of _Local_ File
+
+Once you've cloned the `Git` Repo from the `Gogs` Server
+to the local filesystem of the `Elixir/Phoenix` App,
+you can read any file inside it.
+
+```elixir
+org_name = "myorg"
+repo_name = "public-repo"
+file_name = "README.md"
+{:ok, text} == Gogs.local_file_read(org_name, repo_name, file_name)
+```
+
+### 4. Write to File
+
+```elixir
+file_name = "README.md"
+text = "Your README.md text"
+Gogs.local_file_write_text(org_name, repo_name, file_name, text)
+```
+
+This will create a new file if it doesn't already exist.
+
+### 5. Commit Changes
+
+```elixir
+{:ok, msg} = Gogs.commit(repo_name, 
+  %{message: "your commit message", full_name: "Al Ex", email: "alex@dwyl.co"})
+```
+
+### 6. Push to `Gogs` Remote
+
+```elixir    
+# Push to Gogs Server!
+Gogs.push(repo_name)
+```
+
+### 7. Confirm the File was Update on the Remote repo
+
+```elixir
+# Confirm the README.md was updated on the remote repo:
+{:ok, %HTTPoison.Response{ body: response_body}} = 
+    Gogs.remote_read_raw(org_name, repo_name, file_name)
+"Your README.md text"
+```
 
 
-
-### 3. Write to File
-
-
-
-### 4. Commit Changes
-
-### 5. Push to `Gogs` Remote
-
-
-
-## Function Reference / Docs? 📖 
+## Full Function Reference / Docs? 📖 
 
 Rather than duplicate all the docs here, 
 please read the complete function reference, 
 on hexdocs: https://hexdocs.pm/gogs/Gogs.html
+
 
 ## I'm _Stuck!_ 🤷
 
@@ -233,7 +303,16 @@ We're here to help!
 
 <br />
 
-# ⚠️ Caution!
+## Running the Tests!
+
+By default, the tests run with "mocks". 
+
+
+<br />
+
+<hr />
+
+# ⚠️ Disclaimer! 
 
 This package is provided "**as is**". 
 We make ***no guarantee/warranty*** that it _works_.
@@ -244,13 +323,18 @@ it will _permanently/irrecoverably_ **`delete`** the repo.
 Use it with caution!
 
 That being said,
-we are using this package in "production".
-It works for _us_ an we _maintain_ it.
+We are using this package in "production".
+We rely on it daily and consider it 
+["mission critical"](https://en.wikipedia.org/wiki/Mission_critical).
+It works for _us_ an and
+we have made every effort to document, test & _maintain_ it.
 If you want to use it, go for it!
-But we cannot "support" your usage
+But please note that we cannot "support" your usage
 beyond answering questions on GitHub.
 
 If you spot anything that can be improved,
 please open an 
 [issue](https://github.com/dwyl/gogs/issues),
-we're very happy to discuss!
+we're very happy to discuss! 
+
+[![feedback welcome](https://img.shields.io/badge/feedback-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/gogs/issues)
