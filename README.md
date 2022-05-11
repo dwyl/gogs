@@ -284,7 +284,7 @@ This will create a new file if it doesn't already exist.
 ### 5. _Commit_ Changes
 
 ```elixir
-{:ok, msg} = Gogs.commit(repo_name, 
+{:ok, msg} = Gogs.commit(org_name, repo_name, 
   %{message: "your commit message", full_name: "Al Ex", email: "alex@dwyl.co"})
 ```
 
@@ -292,7 +292,7 @@ This will create a new file if it doesn't already exist.
 
 ```elixir    
 # Push to Gogs Server this one is easy.
-Gogs.push(repo_name)
+Gogs.push(org_name, repo_name)
 ```
 
 ### 7. _Confirm_ the File was Update on the Remote repo
