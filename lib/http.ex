@@ -21,7 +21,7 @@ defmodule GogsHttp do
 
   @doc """
   `inject_poison/0` injects a TestDouble of HTTPoison in Test.
-  see: github.com/dwyl/elixir-auth-google/issues/35
+  see: https://github.com/dwyl/elixir-auth-google/issues/35
   """
   def inject_poison, do: @httpoison
 

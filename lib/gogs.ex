@@ -110,8 +110,8 @@ defmodule Gogs do
       {:ok, res} ->
         {:ok, res}
       {:error, %Git.Error{message: message}} -> 
-        Logger.error("Git.checkout error: #{message}")
-        {:ok, message}
+        Logger.error("Git.checkout error: #{message}, #{repo_name}")
+        {:error, message}
     end
   end
 
