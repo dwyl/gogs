@@ -129,7 +129,7 @@ defmodule GogsTest do
 
   test "local_branch_create/1 returns error if repo doesn't exist" do
     repo_name = "non-existent"
-    {:error, error} = Gogs.local_branch_create(repo_name, "draft")
+    {:error, error} = Gogs.local_branch_create("org_name", repo_name, "draft")
     # Unfortunately the error message depends on Git version, 
     # so we cannot assert the contents of the error message. 
     # but we know from the pattern match above that it did error.
