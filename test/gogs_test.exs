@@ -1,11 +1,17 @@
 defmodule GogsTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   require Logger
   doctest Gogs
   # @github_url "https://github.com/"
   @cwd File.cwd!
   @git_dir Envar.get("GIT_TEMP_DIR_PATH", @cwd)
   @mock Application.compile_env(:gogs, :mock)
+
+  # https://elixirforum.com/t/random-unisgned-64-bit-integers/31659
+  # e.g: "43434105246416498"
+  defp random_postive_int_str() do
+    :crypto.strong_rand_bytes(7) |> :binary.decode_unsigned() |> Integer.to_string()
+  end
 
   # Cleanup helper functions
   defp delete_local_directory(dirname) do
@@ -17,14 +23,15 @@ defmodule GogsTest do
 
   # Create a test repo with the name "test-repo123"
   defp test_repo() do
-    "test-repo" <> Integer.to_string(System.unique_integer([:positive]))
+    "test-repo" <> random_postive_int_str()
   end
 
   def create_test_git_repo(org_name) do
     repo_name = test_repo()
     Gogs.remote_repo_create(org_name, repo_name, false)
     git_repo_url = GogsHelpers.remote_url_ssh(org_name, repo_name)
-    Gogs.clone(git_repo_url)
+    Logger.debug("create_test_git_repo/1 git_repo_url: #{git_repo_url}")
+    Gogs.clone(git_repo_url) |> IO.inspect()
 
     repo_name
   end
@@ -117,7 +124,7 @@ defmodule GogsTest do
     repo_name = "non-existent"
     {:error, err} = Gogs.local_branch_create(repo_name, "draft")
     # Logger.error(res)
-    assert err == "fatal: A branch named 'draft' already exists.\n"
+    assert String.contains?(err, "'draft' already exists")
   end
 
 
