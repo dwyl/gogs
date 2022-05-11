@@ -32,13 +32,9 @@ defmodule GogsHelpers do
     "git@github.com:"
 
   """
-  def make_url(git_url, port \\ 0) do
-    if port > 0 do
-      "ssh://git@#{git_url}:#{port}/"
-    else
-      "git@#{git_url}:"
-    end
-  end
+  def make_url(git_url, port \\ 0)
+  def make_url(git_url, port) when port > 0, do: "ssh://git@#{git_url}:#{port}/"
+  def make_url(git_url, _port), do: "git@#{git_url}:"
 
   @doc """
   `remote_url/3` returns the git remote url.
