@@ -324,8 +324,46 @@ this means that: <br />
   so that a downstream `Elixir/Phoenix` app 
   can run in `mock: true` and tests will be mocked (and thus _fast_!)
 
-To alter this setting in you
+To alter this setting to run the tests _without_ mocks,
+simply change the boolean from:
 
+```elixir
+
+```
+
+To:
+
+```elixir
+
+```
+
+### Test Coverage
+
+When you run the command:
+
+```sh
+mix c
+```
+(an alias for `mix coveralls.html`) <br />
+You will see output similar to the following:
+
+```sh
+Finished in 0.5 seconds (0.2s async, 0.3s sync)
+3 doctests, 22 tests, 0 failures
+
+Randomized with seed 931765
+----------------
+COV    FILE                                        LINES RELEVANT   MISSED
+100.0% lib/git_mock.ex                                54        7        0
+100.0% lib/gogs.ex                                   177       36        0
+100.0% lib/helpers.ex                                105       13        0
+100.0% lib/http.ex                                   101       16        0
+100.0% lib/httpoison_mock.ex                         103       16        0
+[TOTAL] 100.0%
+----------------
+```
+
+Then when you 
 
 <br />
 
