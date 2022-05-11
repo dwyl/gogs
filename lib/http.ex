@@ -16,7 +16,7 @@ defmodule GogsHttp do
     {"Content-Type", "application/json"}
   ]
   @mock Application.compile_env(:gogs, :mock)
-  Logger.info("GogsHttp > config :gogs, mock: #{to_string(@mock)}")
+  Logger.debug("GogsHttp > config :gogs, mock: #{to_string(@mock)}")
   @httpoison (@mock && Gogs.HTTPoisonMock) || HTTPoison
 
   @doc """

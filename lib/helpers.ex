@@ -72,9 +72,9 @@ defmodule GogsHelpers do
   def local_repo_path(repo_name) do
     # coveralls-ignore-start
     if @mock do
-      Path.join([temp_dir(@git_dir), "test-repo"])
+      Path.join([temp_dir(@git_dir), "test-repo"]) |> Path.expand
     else
-      Path.join([temp_dir(@git_dir), repo_name])
+      Path.join([temp_dir(@git_dir), repo_name]) |> Path.expand
     end
     # coveralls-ignore-stop
   end

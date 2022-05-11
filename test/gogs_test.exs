@@ -81,14 +81,17 @@ defmodule GogsTest do
   end
 
   test "Gogs.clone clones a GitHub Repo just for completeness" do
-    repo = "studio" # just cause it's empty but still a valid repo.
-    git_repo_url = "git@github.com:dwyl/#{repo}.git"
-    path = Gogs.clone(git_repo_url)
-    # IO.inspect(path)
-    assert path == GogsHelpers.local_repo_path(repo)
+    repo_name = "studio" # just cause it's empty but still a valid repo.
+    # delete local if exists in end-to-end ("mock: false") mode:
+    delete_local_directory(repo_name)
+    git_repo_url = "git@github.com:dwyl/#{repo_name}.git"
+    path = Gogs.clone(git_repo_url) 
+    Logger.debug("Gogs.clone (TEST) path: #{path}")
+    
+    assert path == GogsHelpers.local_repo_path(repo_name)
 
     # Clean up:
-    delete_local_directory(repo)
+    delete_local_directory(repo_name)
   end
 
   test "Gogs.clone error (simulate unhappy path)" do

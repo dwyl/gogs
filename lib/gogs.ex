@@ -17,7 +17,7 @@ defmodule Gogs do
 
   @api_base_url GogsHelpers.api_base_url()
   @mock Application.compile_env(:gogs, :mock)
-  Logger.debug("config :gogs, mock: #{to_string(@mock)}")
+  Logger.debug("Gogs > config :gogs, mock: #{to_string(@mock)}")
   @git (@mock && Gogs.GitMock) || Git
 
   @doc """
@@ -95,7 +95,7 @@ defmodule Gogs do
         # Logger.info("Cloned repo: #{git_repo_url} to: #{path}")
         path
       {:error, %Git.Error{message: message}} ->
-        Logger.error("ERROR: Tried to clone #{git_repo_url}, got: #{message}")
+        Logger.error("Gogs.clone/1 tried to clone #{git_repo_url}, got: #{message}")
         local_path
     end
   end
