@@ -350,27 +350,59 @@ mix c
 You will see output similar to the following:
 
 ```sh
-Finished in 0.5 seconds (0.2s async, 0.3s sync)
-3 doctests, 22 tests, 0 failures
+Finished in 0.1 seconds (0.1s async, 0.00s sync)
+3 doctests, 25 tests, 0 failures
 
-Randomized with seed 931765
+Randomized with seed 158554
 ----------------
 COV    FILE                                        LINES RELEVANT   MISSED
-100.0% lib/git_mock.ex                                54        7        0
-100.0% lib/gogs.ex                                   177       36        0
-100.0% lib/helpers.ex                                105       13        0
+100.0% lib/git_mock.ex                                55        7        0
+100.0% lib/gogs.ex                                   182       37        0
+100.0% lib/helpers.ex                                131       17        0
 100.0% lib/http.ex                                   101       16        0
-100.0% lib/httpoison_mock.ex                         103       16        0
+100.0% lib/httpoison_mock.ex                         106       15        0
 [TOTAL] 100.0%
 ----------------
 ```
 
 If you want to run the tests _without_ mocks (i.e. "end-to-end"),
-update:
+update the line in `config/test.exs`:
 
 ```sh
 config :gogs, mock: false
 ```
+When you run end-to-end tests with coverage tracking: 
+
+```sh
+mix c
+```
+
+You should see the same output:
+
+```sh
+Finished in 5.5 seconds (5.5s async, 0.00s sync)
+3 doctests, 25 tests, 0 failures
+
+Randomized with seed 5018
+----------------
+COV    FILE                                        LINES RELEVANT   MISSED
+100.0% lib/git_mock.ex                                55        7        0
+100.0% lib/gogs.ex                                   182       37        0
+100.0% lib/helpers.ex                                131       17        0
+100.0% lib/http.ex                                   101       16        0
+100.0% lib/httpoison_mock.ex                         106       15        0
+[TOTAL] 100.0%
+----------------
+```
+
+The only difference is the time it takes to run the test suite. 
+The outcome (all tests passing and 100% coverage) should be identical.
+
+If you add a feature to the package, 
+please ensure that the tests pass 
+in both `mock: true` and `mock: false`
+so that we know it works in the _real_ world 
+as well as in the simulated one. 
 
 <br />
 
