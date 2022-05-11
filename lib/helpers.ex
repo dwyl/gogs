@@ -16,6 +16,7 @@ defmodule GogsHelpers do
     iex> GogsHelpers.api_base_url()
     "https://gogs-server.fly.dev/api/v1/"
   """
+  @spec api_base_url() :: String.t()
   def api_base_url do
     "https://#{Envar.get("GOGS_URL")}/api/v1/"
   end
@@ -32,6 +33,7 @@ defmodule GogsHelpers do
     "git@github.com:"
 
   """
+  @spec make_url(String.t(), integer()) :: String.t()
   def make_url(git_url, port \\ 0)
   def make_url(git_url, port) when port > 0, do: "ssh://git@#{git_url}:#{port}/"
   def make_url(git_url, _port), do: "git@#{git_url}:"
@@ -39,6 +41,7 @@ defmodule GogsHelpers do
   @doc """
   `remote_url/3` returns the git remote url.
   """
+  @spec remote_url(String.t(), String.t(), String.t()) :: String.t()
   def remote_url(base_url, org, repo) do
     "#{base_url}#{org}/#{repo}.git"
   end
@@ -46,6 +49,7 @@ defmodule GogsHelpers do
   @doc """
   `remote_url_ssh/2` returns the remote ssh url for cloning.
   """
+  @spec remote_url_ssh(String.t(), String.t()) :: String.t()
   def remote_url_ssh(org, repo) do
     url = Envar.get("GOGS_URL")
     port = Envar.get("GOGS_SSH_PORT")
@@ -53,6 +57,7 @@ defmodule GogsHelpers do
     remote_url(git_url, org, repo)
   end
 
+  @spec get_org_repo_names(String.t()) :: {String.t(), String.t()}
   defp get_org_repo_names(url) do
     [org, repo] =
       url
@@ -66,6 +71,7 @@ defmodule GogsHelpers do
   `get_repo_name_from_url/1` extracts the repository name from a .git url.
   Feel free to refactor/simplify this function if you want.
   """
+  @spec get_repo_name_from_url(String.t()) :: String.t()
   def get_repo_name_from_url(url) do
     {_org, repo} = get_org_repo_names(url)
     String.split(repo, ".git") |> List.first()
@@ -75,6 +81,7 @@ defmodule GogsHelpers do
   `get_org_name_from_url/1` extracts the organisation name from a .git url.
   ssh://git@gogs-server.fly.dev:10022/theorg/myrepo.git
   """
+  @spec get_org_name_from_url(String.t()) :: String.t()
   def get_org_name_from_url(url) do
     {org, _repo} = get_org_repo_names(url)
     org
@@ -84,6 +91,7 @@ defmodule GogsHelpers do
   `local_repo_path/2` returns the full system path for the cloned repo
   on the `localhost` i.e. the Elixir/Phoenix server that cloned it.
   """
+  @spec local_repo_path(String.t(), String.t()) :: binary()
   def local_repo_path(org, repo) do
     # coveralls-ignore-start
     if @mock do
@@ -99,6 +107,7 @@ defmodule GogsHelpers do
   `local_git_repo/2` returns the `%Git.Repository{}` (struct) for an `org` and `repo`
   on the `localhost`. This is used by the `Git` module to perform operations.
   """
+  @spec local_git_repo(String.t(), String.t()) :: Git.Repository.t()
   def local_git_repo(org, repo) do
     %Git.Repository{path: local_repo_path(org, repo)}
   end
@@ -108,6 +117,7 @@ defmodule GogsHelpers do
   Made this a function in case we want to change the location of the
   directory later e.g. to a temporary directory. 
   """
+  @spec temp_dir(String.t() | nil) :: binary()
   def temp_dir(dir \\ nil) do
     # Logger.info("temp_dir: #{dir} ")
     if dir && File.exists?(dir) do
