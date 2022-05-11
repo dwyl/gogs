@@ -313,7 +313,7 @@ on hexdocs: https://hexdocs.pm/gogs/Gogs.html
 
 <br />
 
-## Running the Tests!
+## Tests! 
 
 By default, the tests run with "mocks",
 this means that: <br />
@@ -328,14 +328,16 @@ To alter this setting to run the tests _without_ mocks,
 simply change the boolean from:
 
 ```elixir
-
+config :gogs, mock: true
 ```
 
 To:
 
 ```elixir
-
+config :gogs, mock: false
 ```
+
+You should still see the same output as all the functions should be tested.
 
 ### Test Coverage
 
@@ -371,7 +373,6 @@ Then when you
 
 We are aiming to do a 1:1 feature map between GitHub and `Gogs`
 so that we can backup our entire organisation, all repos, issues, labels & PRs.
-That way 
 
 We aren't there yet
 and we might not be for some time.
@@ -382,14 +383,15 @@ on fleshing out the features is:
   between two Git commits/hashes. This will allow us to visualize the changes made
   and can therefore _derive_ the contents of a Pull Request 
   without having the PR feature exposed via the Gogs API.
+  See: https://github.com/dwyl/gogs/issues/27
 2. **Issues**: https://github.com/gogs/docs-api/tree/master/Issues
   + **Comments** - this is the core content of issues. 
     We need to parse all the data and map it to the fields in `Gogs`.
   + **Labels** - the primary metadata we use to categorize our issues, 
     see: https://github.com/dwyl/labels
   + **Milestones** - used to _group_ issues into batches, e.g. a "sprint" or "feature".
-3. 
-4. Your Feature Request Here! 
+3. **Repo Stats**: Stars, watchers, forks etc.
+4. **_Your_ Feature Request** Here! 
 Seriously, if you spot a gap in the list of available functions, 
 something you want/need to use `Gogs` in any a more advanced/custom way,
 please open an issue so we can discuss!
