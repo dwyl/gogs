@@ -85,7 +85,7 @@ defmodule GogsTest do
     git_repo_url = "git@github.com:#{org_name}/#{repo_name}.git"
     path = Gogs.clone(git_repo_url)
     # Logger.debug("Gogs.clone (TEST) path: #{path}")
-    # assert path == path
+    assert String.contains?(path, "dwyl/studio")
 
     # Clean up:
     delete_local_directory(repo_name)
@@ -121,7 +121,7 @@ defmodule GogsTest do
   end
 
   test "local_branch_create/2 returns error if repo doesn't exist" do
-    repo_name = "non-existent-" <> random_postive_int_str()
+    repo_name = "no-repo-" <> random_postive_int_str()
     org_name = "no-org-" <> random_postive_int_str()
     {:error, error} = Gogs.local_branch_create(org_name, repo_name, "draft")
     # Unfortunately the error message depends on Git version, 
