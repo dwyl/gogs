@@ -15,7 +15,6 @@ defmodule GogsTest do
 
   # Cleanup helper functions
   defp delete_local_directory(dirname) do
-    # IO.inspect(File.cwd(), label: "File.cwd()")
     path = Path.join(GogsHelpers.temp_dir(@git_dir), dirname)
     Logger.debug("GogsTest.delete_local_directory: #{path}")
     File.rm_rf(path)
@@ -31,7 +30,7 @@ defmodule GogsTest do
     Gogs.remote_repo_create(org_name, repo_name, false)
     git_repo_url = GogsHelpers.remote_url_ssh(org_name, repo_name)
     # Logger.debug("create_test_git_repo/1 git_repo_url: #{git_repo_url}")
-    Gogs.clone(git_repo_url) |> IO.inspect()
+    Gogs.clone(git_repo_url)
 
     repo_name
   end
@@ -39,13 +38,10 @@ defmodule GogsTest do
   test "remote_repo_create/3 creates a new repo on the Gogs server" do
     org_name = "myorg"
     repo_name = test_repo()
-    IO.inspect(repo_name, label: "repo_name")
     {:ok, response} = Gogs.remote_repo_create(org_name, repo_name, false)
     response = Map.drop(response, [:id, :created_at, :updated_at])
-    IO.inspect(response.name)
 
     mock_response = Gogs.HTTPoisonMock.make_repo_create_post_response_body(repo_name)
-    IO.inspect(mock_response.name)
     assert response.name == mock_response.name
 
     # Cleanup:
@@ -60,7 +56,6 @@ defmodule GogsTest do
     {:ok, %HTTPoison.Response{body: response_body}} =
       Gogs.remote_read_raw(org_name, repo_name, file_name)
 
-    # IO.inspect(response_body)
     expected = "# public-repo\n\nplease don't update this. the tests read it."
     assert expected == response_body
   end
@@ -71,7 +66,6 @@ defmodule GogsTest do
     git_repo_url = GogsHelpers.remote_url_ssh(org, repo)
 
     path = Gogs.clone(git_repo_url)
-    IO.inspect(path)
     # assert path == GogsHelpers.local_repo_path(repo)
 
     # Attempt to clone it a second time to test the :error branch:
@@ -91,7 +85,7 @@ defmodule GogsTest do
     git_repo_url = "git@github.com:#{org_name}/#{repo_name}.git"
     path = Gogs.clone(git_repo_url)
     # Logger.debug("Gogs.clone (TEST) path: #{path}")
-    assert path == path
+    # assert path == path
 
     # Clean up:
     delete_local_directory(repo_name)
@@ -102,7 +96,6 @@ defmodule GogsTest do
     org = "myorg"
     git_repo_url = GogsHelpers.remote_url_ssh(org, repo)
     path = Gogs.clone(git_repo_url)
-    # IO.inspect(path)
     assert path == GogsHelpers.local_repo_path(org, repo)
   end
 
@@ -127,7 +120,7 @@ defmodule GogsTest do
     Git.branch(GogsHelpers.local_git_repo(org_name, repo_name), ~w(-d draft))
   end
 
-  test "local_branch_create/1 returns error if repo doesn't exist" do
+  test "local_branch_create/2 returns error if repo doesn't exist" do
     repo_name = "non-existent-" <> random_postive_int_str()
     org_name = "no-org-" <> random_postive_int_str()
     {:error, error} = Gogs.local_branch_create(org_name, repo_name, "draft")

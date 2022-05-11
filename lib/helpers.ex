@@ -17,7 +17,7 @@ defmodule GogsHelpers do
     "https://gogs-server.fly.dev/api/v1/"
   """
   def api_base_url do
-    "https://" <> Envar.get("GOGS_URL") <> "/api/v1/"
+    "https://#{Envar.get("GOGS_URL")}/api/v1/"
   end
 
   @doc """
