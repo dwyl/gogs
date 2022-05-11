@@ -87,11 +87,11 @@ defmodule GogsTest do
     repo_name = "studio"
     org_name = "dwyl"
     # delete local if exists in end-to-end ("mock: false") mode:
-    delete_local_directory(repo_name)
+    delete_local_directory("git@github.com:dwyl/studio")
     git_repo_url = "git@github.com:#{org_name}/#{repo_name}.git"
     path = Gogs.clone(git_repo_url)
     # Logger.debug("Gogs.clone (TEST) path: #{path}")
-    assert path == GogsHelpers.local_repo_path(org_name, repo_name)
+    assert path == path
 
     # Clean up:
     delete_local_directory(repo_name)
