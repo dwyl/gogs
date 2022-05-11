@@ -75,22 +75,7 @@ defmodule GogsTest do
     # Clean up:
     delete_local_directory("public-repo")
   end
-
-  test "Gogs.clone clones a GitHub Repo just for completeness" do
-    # just cause it's empty but still a valid repo.
-    repo_name = "studio"
-    org_name = "dwyl"
-    # delete local if exists in end-to-end ("mock: false") mode:
-    delete_local_directory("git@github.com:dwyl/studio")
-    git_repo_url = "git@github.com:#{org_name}/#{repo_name}.git"
-    path = Gogs.clone(git_repo_url)
-    # Logger.debug("Gogs.clone (TEST) path: #{path}")
-    assert String.contains?(path, "dwyl/studio")
-
-    # Clean up:
-    delete_local_directory(repo_name)
-  end
-
+  
   test "Gogs.clone error (simulate unhappy path)" do
     repo = "error"
     org = "myorg"
