@@ -37,13 +37,14 @@ defmodule Gogs do
   def remote_repo_create(org_name, repo_name, private \\ false) do
     url = @api_base_url <> "org/#{org_name}/repos"
     Logger.info("remote_repo_create api endpoint: #{url}")
-    
+
     params = %{
       name: repo_name,
       private: private,
       description: repo_name,
       readme: repo_name
     }
+
     GogsHttp.post(url, params)
   end
 
@@ -73,13 +74,13 @@ defmodule Gogs do
   ```
   Ref: https://github.com/gogs/docs-api/blob/master/Repositories/Contents.md#get-contents
   """
-  @spec remote_read_raw(String.t(), String.t(), String.t(), String.t()) :: {:ok, map} | {:error, any}
+  @spec remote_read_raw(String.t(), String.t(), String.t(), String.t()) ::
+          {:ok, map} | {:error, any}
   def remote_read_raw(org_name, repo_name, file_name, branch_name \\ "master") do
     url = @api_base_url <> "repos/#{org_name}/#{repo_name}/raw/#{branch_name}/#{file_name}"
     Logger.debug("Gogs.remote_read_raw: #{url}")
     GogsHttp.get_raw(url)
   end
-
 
   @doc """
   `clone/1` clones a remote git repository based on `git_repo_url`
@@ -87,13 +88,16 @@ defmodule Gogs do
   """
   @spec clone(String.t()) :: {:ok, any} | {:error, any}
   def clone(git_repo_url) do
+    org_name = get_org_name_from_url(git_repo_url)
     repo_name = get_repo_name_from_url(git_repo_url)
-    local_path = local_repo_path(repo_name)
+    local_path = local_repo_path(org_name, repo_name)
     Logger.info("git clone #{git_repo_url} #{local_path}")
-    case inject_git().clone([git_repo_url, local_path])  do
+
+    case inject_git().clone([git_repo_url, local_path]) do
       {:ok, %Git.Repository{path: path}} ->
         # Logger.info("Cloned repo: #{git_repo_url} to: #{path}")
         path
+
       {:error, %Git.Error{message: message}} ->
         Logger.error("Gogs.clone/1 tried to clone #{git_repo_url}, got: #{message}")
         local_path
@@ -101,15 +105,16 @@ defmodule Gogs do
   end
 
   @doc """
-  `local_branch_create/2` creates a branch with the specified name
+  `local_branch_create/3` creates a branch with the specified name
   or defaults to "draft".
-  """ 
+  """
   @spec local_branch_create(String.t(), String.t()) :: {:ok, map} | {:error, any}
-  def local_branch_create(repo_name, branch_name \\ "draft") do
-    case Git.checkout(local_git_repo(repo_name), ["-b", branch_name]) do
+  def local_branch_create(org_name, repo_name, branch_name \\ "draft") do
+    case Git.checkout(local_git_repo(org_name, repo_name), ["-b", branch_name]) do
       {:ok, res} ->
         {:ok, res}
-      {:error, %Git.Error{message: message}} -> 
+
+      {:error, %Git.Error{message: message}} ->
         Logger.error("Git.checkout error: #{message}, #{repo_name} (should not thow error)")
         {:error, message}
     end
@@ -118,10 +123,10 @@ defmodule Gogs do
   @doc """
   `local_file_read/3` reads the raw text from the `file_name`,
   params: `org_name`, `repo_name` & `file_name`
-  """ 
+  """
   @spec local_file_read(String.t(), String.t(), String.t()) :: String.t()
-  def local_file_read(_org_name, repo_name, file_name) do
-    file_path = Path.join([local_repo_path(repo_name), file_name])
+  def local_file_read(org_name, repo_name, file_name) do
+    file_path = Path.join([local_repo_path(org_name, repo_name), file_name])
     File.read(file_path)
   end
 
@@ -129,29 +134,31 @@ defmodule Gogs do
   `local_file_write_text/3` writes the desired `text`,
   to the `file_name` in the `repo_name`. 
   Touches the file in case it doesn't already exist.
-  """ 
-  @spec local_file_write_text(String.t(), String.t(), String.t(), String.t()) :: :ok | {:error, any}
-  def local_file_write_text(_org_name, repo_name, file_name, text) do
-    file_path = Path.join([local_repo_path(repo_name), file_name])
+  """
+  @spec local_file_write_text(String.t(), String.t(), String.t(), String.t()) ::
+          :ok | {:error, any}
+  def local_file_write_text(org_name, repo_name, file_name, text) do
+    file_path = Path.join([local_repo_path(org_name, repo_name), file_name])
     Logger.info("attempting to write to #{file_path}")
     File.touch!(file_path)
     File.write(file_path, text)
   end
-  
+
   @doc """
-  `commit/2` commits the latest changes on the local branch.
+  `commit/3` commits the latest changes on the local branch.
   Accepts the `repo_name` and a `Map` of `params`:
   `params.message`: the commit message you want in the log
   `params.full_name`: the name of the person making the commit
   `params.email`: email address of the person committing. 
-  """ 
-  @spec commit(String.t(), map) :: {:ok, any} | {:error, any}
-  def commit(repo_name, params) do
-    repo = %Git.Repository{path: local_repo_path(repo_name)}
+  """
+  @spec commit(String.t(), String.t(), map) :: {:ok, any} | {:error, any}
+  def commit(org_name, repo_name, params) do
+    repo = local_git_repo(org_name, repo_name)
     # Add all files in the repo
     {:ok, _output} = Git.add(repo, ["."])
     # Commit with message
-    {:ok, _output} = Git.commit(repo, [
+    {:ok, _output} =
+      Git.commit(repo, [
         "-m",
         params.message,
         ~s(--author="#{params.full_name} <#{params.email}>")
@@ -159,19 +166,17 @@ defmodule Gogs do
   end
 
   @doc """
-  `push/1` pushes the `repo_name` (current active branch)
+  `push/2` pushes the `org_name/repo_name` (current active branch)
   to the remote repository URL. Mocked during test/CI.
-  """ 
-  @spec push(String.t()) :: {:ok, any} | {:error, any}
-  def push(repo_name) do
+  """
+  @spec push(String.t(), String.t()) :: {:ok, any} | {:error, any}
+  def push(org_name, repo_name) do
     # Get the current git branch:
-    git_repo = %Git.Repository{path: local_repo_path(repo_name)}
-    {:ok, branch} = Git.branch(git_repo,  ~w(--show-current))
+    git_repo = local_git_repo(org_name, repo_name)
+    {:ok, branch} = Git.branch(git_repo, ~w(--show-current))
     # Remove trailing whitespace as Git chokes on it:
     branch = String.trim(branch)
     # Push the current branch:
     inject_git().push(git_repo, ["-u", "origin", branch])
   end
-
 end
-  

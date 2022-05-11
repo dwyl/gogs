@@ -26,13 +26,14 @@ defmodule Gogs.GitMock do
       # recurse using just the url (String) portion of the list:
       "list" ->
         url |> List.first() |> clone()
-      
+
       "binary" ->
         Logger.info("Gogs.GitMock.clone #{url}")
+
         if String.contains?(url, "error") do
           {:error, %Git.Error{message: "git clone error (mock)"}}
         else
-          {:ok, %Git.Repository{path: GogsHelpers.local_repo_path("test-repo")}}
+          {:ok, %Git.Repository{path: GogsHelpers.local_repo_path("test-org", "test-repo")}}
         end
     end
   end
