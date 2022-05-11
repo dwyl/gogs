@@ -365,7 +365,12 @@ COV    FILE                                        LINES RELEVANT   MISSED
 ----------------
 ```
 
-Then when you 
+If you want to run the tests _without_ mocks (i.e. "end-to-end"),
+update:
+
+```sh
+config :gogs, mock: false
+```
 
 <br />
 
