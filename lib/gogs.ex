@@ -90,7 +90,7 @@ defmodule Gogs do
   def clone(git_repo_url) do
     org_name = get_org_name_from_url(git_repo_url)
     repo_name = get_repo_name_from_url(git_repo_url)
-    local_path = local_repo_path(repo_name)
+    local_path = local_repo_path(org_name, repo_name)
     Logger.info("git clone #{git_repo_url} #{local_path}")
 
     case inject_git().clone([git_repo_url, local_path]) do

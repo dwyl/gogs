@@ -3,7 +3,7 @@ defmodule GogsTest do
   require Logger
   doctest Gogs
   # @github_url "https://github.com/"
-  @cwd File.cwd!
+  @cwd File.cwd!()
   @git_dir Envar.get("GIT_TEMP_DIR_PATH", @cwd)
   @mock Application.compile_env(:gogs, :mock)
 
@@ -49,15 +49,17 @@ defmodule GogsTest do
     assert response.name == mock_response.name
 
     # Cleanup:
-    Gogs.remote_repo_delete(org_name, repo_name)    
+    Gogs.remote_repo_delete(org_name, repo_name)
   end
 
   test "Gogs.remote_read_raw/3 retrieves the contents of the README.md file" do
     org_name = "myorg"
     repo_name = "public-repo"
     file_name = "README.md"
-    {:ok, %HTTPoison.Response{ body: response_body}} = 
+
+    {:ok, %HTTPoison.Response{body: response_body}} =
       Gogs.remote_read_raw(org_name, repo_name, file_name)
+
     # IO.inspect(response_body)
     expected = "# public-repo\n\nplease don't update this. the tests read it."
     assert expected == response_body
@@ -81,13 +83,15 @@ defmodule GogsTest do
   end
 
   test "Gogs.clone clones a GitHub Repo just for completeness" do
-    repo_name = "studio" # just cause it's empty but still a valid repo.
+    # just cause it's empty but still a valid repo.
+    repo_name = "studio"
+    org_name = "dwyl"
     # delete local if exists in end-to-end ("mock: false") mode:
     delete_local_directory(repo_name)
-    git_repo_url = "git@github.com:dwyl/#{repo_name}.git"
-    path = Gogs.clone(git_repo_url) 
+    git_repo_url = "git@github.com:#{org_name}/#{repo_name}.git"
+    path = Gogs.clone(git_repo_url)
     # Logger.debug("Gogs.clone (TEST) path: #{path}")
-    assert path == GogsHelpers.local_repo_path(repo_name)
+    assert path == GogsHelpers.local_repo_path(org_name, repo_name)
 
     # Clean up:
     delete_local_directory(repo_name)
@@ -99,16 +103,17 @@ defmodule GogsTest do
     git_repo_url = GogsHelpers.remote_url_ssh(org, repo)
     path = Gogs.clone(git_repo_url)
     # IO.inspect(path)
-    assert path == GogsHelpers.local_repo_path(repo)
+    assert path == GogsHelpers.local_repo_path(org, repo)
   end
 
   test "local_branch_create/1 creates a new branch on the localhost" do
-    repo_name = create_test_git_repo("myorg")
+    org_name = "myorg"
+    repo_name = create_test_git_repo(org_name)
     # # delete draft branch if exists:
-    Git.branch(GogsHelpers.local_git_repo(repo_name), ["-m", repo_name])
-    Git.branch(GogsHelpers.local_git_repo(repo_name), ~w(-d draft))
+    Git.branch(GogsHelpers.local_git_repo(org_name, repo_name), ["-m", repo_name])
+    Git.branch(GogsHelpers.local_git_repo(org_name, repo_name), ~w(-d draft))
 
-    {:ok, res} = Gogs.local_branch_create(repo_name, "draft")
+    {:ok, res} = Gogs.local_branch_create(org_name, repo_name, "draft")
     assert res == "Switched to a new branch 'draft'\n"
 
     # Try create the "draft" branch again. Should error but not "throw":
@@ -116,10 +121,10 @@ defmodule GogsTest do
     # assert String.contains?(err, "'draft'")
 
     # Cleanup!
-    Gogs.remote_repo_delete("myorg", repo_name)
+    Gogs.remote_repo_delete(org_name, repo_name)
     delete_local_directory(repo_name)
     # Test error branch once the local repo has been deleted:
-    Git.branch(GogsHelpers.local_git_repo(repo_name), ~w(-d draft))
+    Git.branch(GogsHelpers.local_git_repo(org_name, repo_name), ~w(-d draft))
   end
 
   test "local_branch_create/1 returns error if repo doesn't exist" do
@@ -131,14 +136,14 @@ defmodule GogsTest do
     Logger.error("test: local_branch_create/1 > error: #{error}")
   end
 
-
   test "write_text_to_file/3 writes text to a specified file" do
     org_name = "myorg"
     repo_name = create_test_git_repo(org_name)
     file_name = "README.md"
     text = "text #{repo_name}"
+
     assert :ok ==
-      Gogs.local_file_write_text(org_name, repo_name, file_name, text)
+             Gogs.local_file_write_text(org_name, repo_name, file_name, text)
 
     # Confirm the text was written to the file:
     assert {:ok, text} == Gogs.local_file_read(org_name, repo_name, file_name)
@@ -152,15 +157,17 @@ defmodule GogsTest do
     org_name = "myorg"
     repo_name = create_test_git_repo(org_name)
     file_name = "README.md"
+
     assert :ok ==
-      Gogs.local_file_write_text(org_name, repo_name, file_name, "text #{repo_name}")
+             Gogs.local_file_write_text(org_name, repo_name, file_name, "text #{repo_name}")
 
     # Confirm the text was written to the file:
-    file_path = Path.join([GogsHelpers.local_repo_path(repo_name), file_name])
-    assert {:ok,"text #{repo_name}" } == File.read(file_path)
+    file_path = Path.join([GogsHelpers.local_repo_path(org_name, repo_name), file_name])
+    assert {:ok, "text #{repo_name}"} == File.read(file_path)
 
-    {:ok, msg} = Gogs.commit(repo_name, 
-      %{message: "test msg", full_name: "Al Ex", email: "c@t.co"})
+    {:ok, msg} =
+      Gogs.commit(org_name, repo_name, %{message: "test msg", full_name: "Al Ex", email: "c@t.co"})
+
     assert String.contains?(msg, "test msg")
     assert String.contains?(msg, "1 file changed, 1 insertion(+)")
 
@@ -174,31 +181,34 @@ defmodule GogsTest do
     repo_name = create_test_git_repo(org_name)
     file_name = "README.md"
     text = "text #{repo_name}"
+
     assert :ok ==
-      Gogs.local_file_write_text(org_name, repo_name, file_name, text)
+             Gogs.local_file_write_text(org_name, repo_name, file_name, text)
 
     # Confirm the text was written to the file:
-    file_path = Path.join([GogsHelpers.local_repo_path(repo_name), file_name])
-    assert {:ok,"text #{repo_name}" } == File.read(file_path)
+    file_path = Path.join([GogsHelpers.local_repo_path(org_name, repo_name), file_name])
+    assert {:ok, "text #{repo_name}"} == File.read(file_path)
 
     # Commit the updated text:
-    {:ok, msg} = Gogs.commit(repo_name, 
-      %{message: "test msg", full_name: "Al Ex", email: "c@t.co"})
+    {:ok, msg} =
+      Gogs.commit(org_name, repo_name, %{message: "test msg", full_name: "Al Ex", email: "c@t.co"})
+
     assert String.contains?(msg, "test msg")
 
-    # Push to Gogs Server!
-    Gogs.push(repo_name)
+    #  Push to Gogs Server!
+    Gogs.push(org_name, repo_name)
 
     # Confirm the README.md of the newly created repo was updated:
-    {:ok, %HTTPoison.Response{ body: response_body}} = 
+    {:ok, %HTTPoison.Response{body: response_body}} =
       Gogs.remote_read_raw(org_name, repo_name, file_name)
-    
+
     if @mock do
-      assert response_body == 
-        "# public-repo\n\nplease don't update this. the tests read it."
+      assert response_body ==
+               "# public-repo\n\nplease don't update this. the tests read it."
     else
       assert response_body == text
     end
+
     # Cleanup!
     Gogs.remote_repo_delete(org_name, repo_name)
     delete_local_directory(repo_name)
