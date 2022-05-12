@@ -111,14 +111,8 @@ defmodule GogsTest do
     {:ok, res} = Gogs.local_branch_create(org_name, repo_name, "draft")
     assert res == "Switched to a new branch 'draft'\n"
 
-    # Try create the "draft" branch again. Should error but not "throw":
-    # {:error, err} = Gogs.local_branch_create(repo_name, "draft")
-    # assert String.contains?(err, "'draft'")
-
     # Cleanup!
     teardown_local_and_remote(org_name, repo_name)
-    # Test error branch once the local repo has been deleted:
-    Git.branch(GogsHelpers.local_git_repo(org_name, repo_name), ~w(-d draft))
   end
 
   test "local_branch_create/2 returns error if repo doesn't exist" do
