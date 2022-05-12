@@ -5,7 +5,7 @@ defmodule GogsHelpers do
   https://github.com/dwyl/gogs/issues
   """
   require Logger
-  @cwd File.cwd!
+  @cwd File.cwd!()
   @git_dir Envar.get("GIT_TEMP_DIR_PATH", @cwd)
   @mock Application.compile_env(:gogs, :mock)
 
@@ -16,8 +16,9 @@ defmodule GogsHelpers do
     iex> GogsHelpers.api_base_url()
     "https://gogs-server.fly.dev/api/v1/"
   """
+  @spec api_base_url() :: String.t()
   def api_base_url do
-    "https://" <> Envar.get("GOGS_URL") <> "/api/v1/"
+    "https://#{Envar.get("GOGS_URL")}/api/v1/"
   end
 
   @doc """
@@ -27,22 +28,20 @@ defmodule GogsHelpers do
   ## Examples
     iex> GogsHelpers.make_url("gogs-server.fly.dev", "10022")
     "ssh://git@gogs-server.fly.dev:10022/"
-  
+
     iex> GogsHelpers.make_url("github.com")
     "git@github.com:"
 
   """
-  def make_url(git_url, port \\ 0) do
-    if port > 0 do
-      "ssh://git@#{git_url}:#{port}/"
-    else
-      "git@#{git_url}:"
-    end
-  end
+  @spec make_url(String.t(), integer()) :: String.t()
+  def make_url(git_url, port \\ 0)
+  def make_url(git_url, port) when port > 0, do: "ssh://git@#{git_url}:#{port}/"
+  def make_url(git_url, _port), do: "git@#{git_url}:"
 
-    @doc """
+  @doc """
   `remote_url/3` returns the git remote url.
   """
+  @spec remote_url(String.t(), String.t(), String.t()) :: String.t()
   def remote_url(base_url, org, repo) do
     "#{base_url}#{org}/#{repo}.git"
   end
@@ -50,6 +49,7 @@ defmodule GogsHelpers do
   @doc """
   `remote_url_ssh/2` returns the remote ssh url for cloning.
   """
+  @spec remote_url_ssh(String.t(), String.t()) :: String.t()
   def remote_url_ssh(org, repo) do
     url = Envar.get("GOGS_URL")
     port = Envar.get("GOGS_SSH_PORT")
@@ -57,49 +57,75 @@ defmodule GogsHelpers do
     remote_url(git_url, org, repo)
   end
 
-  @doc """
-  `get_repo_name_from_url/1` extracts the repository name from a .git url.
-  Feel free to refactor/simplify this function if you want.
-  """ 
-  def get_repo_name_from_url(url) do
-    String.split(url, "/") |> List.last() |> String.split(".git") |> List.first()
+  @spec get_org_repo_names(String.t()) :: {String.t(), String.t()}
+  defp get_org_repo_names(url) do
+    [org, repo] =
+      url
+      |> String.split("/")
+      |> Enum.take(-2)
+
+    {org, repo}
   end
 
   @doc """
-  `local_repo_path/1` returns the full system path for the cloned repo
+  `get_repo_name_from_url/1` extracts the repository name from a .git url.
+  Feel free to refactor/simplify this function if you want.
+  """
+  @spec get_repo_name_from_url(String.t()) :: String.t()
+  def get_repo_name_from_url(url) do
+    {_org, repo} = get_org_repo_names(url)
+    String.split(repo, ".git") |> List.first()
+  end
+
+  @doc """
+  `get_org_name_from_url/1` extracts the organisation name from a .git url.
+  ssh://git@gogs-server.fly.dev:10022/theorg/myrepo.git
+  """
+  @spec get_org_name_from_url(String.t()) :: String.t()
+  def get_org_name_from_url(url) do
+    {org, _repo} = get_org_repo_names(url)
+    org
+  end
+
+  @doc """
+  `local_repo_path/2` returns the full system path for the cloned repo
   on the `localhost` i.e. the Elixir/Phoenix server that cloned it.
-  """ 
-  def local_repo_path(repo_name) do
+  """
+  @spec local_repo_path(String.t(), String.t()) :: binary()
+  def local_repo_path(org, repo) do
     # coveralls-ignore-start
     if @mock do
-      Path.join([temp_dir(@git_dir), "test-repo"])
+      Path.join([temp_dir(@git_dir), "test-repo"]) |> Path.expand()
     else
-      Path.join([temp_dir(@git_dir), repo_name])
+      Path.join([temp_dir(@git_dir), org, repo]) |> Path.expand()
     end
+
     # coveralls-ignore-stop
   end
 
   @doc """
-  `local_git_repo/1` returns the `%Git.Repository{}` (struct) for a `repo_name`
+  `local_git_repo/2` returns the `%Git.Repository{}` (struct) for an `org` and `repo`
   on the `localhost`. This is used by the `Git` module to perform operations.
-  """ 
-  def local_git_repo(repo_name) do
-    %Git.Repository{path: local_repo_path(repo_name)}
+  """
+  @spec local_git_repo(String.t(), String.t()) :: Git.Repository.t()
+  def local_git_repo(org, repo) do
+    %Git.Repository{path: local_repo_path(org, repo)}
   end
 
   @doc """
   `temp_dir/1` returns the Current Working Directory (CWD).
   Made this a function in case we want to change the location of the
   directory later e.g. to a temporary directory. 
-  """ 
+  """
+  @spec temp_dir(String.t() | nil) :: binary()
   def temp_dir(dir \\ nil) do
     # Logger.info("temp_dir: #{dir} ")
     if dir && File.exists?(dir) do
       dir
-    # coveralls-ignore-start
+      # coveralls-ignore-start
     else
-      File.cwd!
-    # coveralls-ignore-stop
+      File.cwd!()
+      # coveralls-ignore-stop
     end
   end
 end

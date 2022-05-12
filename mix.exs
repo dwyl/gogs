@@ -6,7 +6,7 @@ defmodule Gogs.MixProject do
   def project do
     [
       app: :gogs,
-      version: "0.8.0",
+      version: "0.9.0",
       elixir: @elixir_requirement,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -56,7 +56,7 @@ defmodule Gogs.MixProject do
 
       # Keep Code Tidy: https://github.com/rrrene/credo
       {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
-
+      {:dialyxir, "~> 1.1", only: [:dev], runtime: false}
     ]
   end
 

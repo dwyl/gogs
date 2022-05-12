@@ -44,10 +44,10 @@ This package is that interface.
 # _What_? 📦
 
 A library for interacting with `gogs` (`git`)
-from our `Elixir` apps. <br />
+from `Elixir` apps. <br />
 
 Hopefully this diagram explains 
-how we are using the package:
+how we use the package:
 
 <div align="center">
 
@@ -73,6 +73,11 @@ It should only take **`2 mins`** if you already have your
 **`Gogs` Server** _deployed_ (_or access to an existing instance_).
 
 
+> If you want to read a **step-by-step complete beginner's guide**
+> to getting **`gogs`** working in a **`Phoenix`** App,
+> please see: 
+> [github.com/dwyl/**gogs-demo**](https://github.com/dwyl/gogs-demo)
+
 
 <br />
 
@@ -84,7 +89,7 @@ by adding `gogs` to the list of dependencies in your `mix.exs` file:
 ```elixir
 def deps do
   [
-    {:gogs, "~> 0.8.0"}
+    {:gogs, "~> 0.9.0"}
   ]
 end
 ```
@@ -97,6 +102,19 @@ mix deps.get
 
 <br />
 
+## Config ⚙️
+
+If you are writing tests for a function that relies on `gogs` (and you should!)
+then you can add the following line to your `config/test.exs` file:
+
+```sh
+config :gogs, mock: true
+```
+e.g: [config/test.exs#L2-L4](https://github.com/dwyl/gogs/blob/f6d4658ae2a993aac3a76e812e915680964dfdb5/config/test.exs#L2-L4)
+
+
+<br />
+
 ## _Setup_ 🔧
 
 For `gogs` to work
@@ -104,7 +122,8 @@ in your `Elixir/Phoenix` App,
 you will need to have 
 a few environment variables defined.
 
-There are 3 _required_ and 2 _optional_.
+There are **3 _required_** 
+and **2 _optional_** variables.
 Make sure you read through the next section
 to determine if you _need_ the _optional_ ones.
 
@@ -205,7 +224,7 @@ This is exactly the use-case presented in our demo app:
 Here's a more real-world scenario 
 in 7 easy steps:
 
-### 1. Create Repo
+### 1. _Create_ a New Repo on the Gogs Server
 
 ```elixir
 # Define the params for the remote repository:
@@ -225,7 +244,7 @@ Gogs.remote_repo_create(org_name, repo_name, private)
 > https://github.com/dwyl/gogs/issues/17
 
 
-### 2. Clone Repo
+### 2. _Clone_ the Repo
 
 ```elixir
 git_repo_url = GogsHelpers.remote_url_ssh(org_name, repo_name)
@@ -239,7 +258,7 @@ Gogs.clone(git_repo_url)
 > But if you get stuck at this step,
 > [open an issue](https://github.com/dwyl/gogs/issues)
 
-### 3. Read Contents of _Local_ File
+### 3. _Read_ the Contents of _Local_ (Cloned) File
 
 Once you've cloned the `Git` Repo from the `Gogs` Server
 to the local filesystem of the `Elixir/Phoenix` App,
@@ -252,7 +271,7 @@ file_name = "README.md"
 {:ok, text} == Gogs.local_file_read(org_name, repo_name, file_name)
 ```
 
-### 4. Write to File
+### 4. _Write_ to a File
 
 ```elixir
 file_name = "README.md"
@@ -262,21 +281,21 @@ Gogs.local_file_write_text(org_name, repo_name, file_name, text)
 
 This will create a new file if it doesn't already exist.
 
-### 5. Commit Changes
+### 5. _Commit_ Changes
 
 ```elixir
-{:ok, msg} = Gogs.commit(repo_name, 
+{:ok, msg} = Gogs.commit(org_name, repo_name, 
   %{message: "your commit message", full_name: "Al Ex", email: "alex@dwyl.co"})
 ```
 
-### 6. Push to `Gogs` Remote
+### 6. _Push_ to `Gogs` Remote
 
 ```elixir    
-# Push to Gogs Server!
-Gogs.push(repo_name)
+# Push to Gogs Server this one is easy.
+Gogs.push(org_name, repo_name)
 ```
 
-### 7. Confirm the File was Update on the Remote repo
+### 7. _Confirm_ the File was Update on the Remote repo
 
 ```elixir
 # Confirm the README.md was updated on the remote repo:
@@ -292,6 +311,130 @@ Rather than duplicate all the docs here,
 please read the complete function reference, 
 on hexdocs: https://hexdocs.pm/gogs/Gogs.html
 
+<br />
+
+## Tests! 
+
+By default, the tests run with "mocks",
+this means that: <br />
+1. Functional tests run faster (0.2 seconds)
+2. Tests that require filesystem access will run on GitHub CI.
+3. We know that functions are appropriately 
+  ["Test Doubled"]
+  so that a downstream `Elixir/Phoenix` app 
+  can run in `mock: true` and tests will be mocked (and thus _fast_!)
+
+To alter this setting to run the tests _without_ mocks,
+simply change the boolean from:
+
+```elixir
+config :gogs, mock: true
+```
+
+To:
+
+```elixir
+config :gogs, mock: false
+```
+
+You should still see the same output as all the functions should be tested.
+
+### Test Coverage
+
+When you run the command:
+
+```sh
+mix c
+```
+(an alias for `mix coveralls.html`) <br />
+You will see output similar to the following:
+
+```sh
+Finished in 0.1 seconds (0.1s async, 0.00s sync)
+3 doctests, 25 tests, 0 failures
+
+Randomized with seed 158554
+----------------
+COV    FILE                                        LINES RELEVANT   MISSED
+100.0% lib/git_mock.ex                                55        7        0
+100.0% lib/gogs.ex                                   182       37        0
+100.0% lib/helpers.ex                                131       17        0
+100.0% lib/http.ex                                   101       16        0
+100.0% lib/httpoison_mock.ex                         106       15        0
+[TOTAL] 100.0%
+----------------
+```
+
+If you want to run the tests _without_ mocks (i.e. "end-to-end"),
+update the line in `config/test.exs`:
+
+```sh
+config :gogs, mock: false
+```
+When you run end-to-end tests with coverage tracking: 
+
+```sh
+mix c
+```
+
+You should see the same output:
+
+```sh
+Finished in 5.5 seconds (5.5s async, 0.00s sync)
+3 doctests, 25 tests, 0 failures
+
+Randomized with seed 5018
+----------------
+COV    FILE                                        LINES RELEVANT   MISSED
+100.0% lib/git_mock.ex                                55        7        0
+100.0% lib/gogs.ex                                   182       37        0
+100.0% lib/helpers.ex                                131       17        0
+100.0% lib/http.ex                                   101       16        0
+100.0% lib/httpoison_mock.ex                         106       15        0
+[TOTAL] 100.0%
+----------------
+```
+
+The only difference is the time it takes to run the test suite. 
+The outcome (all tests passing and 100% coverage) should be identical.
+
+If you add a feature to the package, 
+please ensure that the tests pass 
+in both `mock: true` and `mock: false`
+so that we know it works in the _real_ world 
+as well as in the simulated one. 
+
+<br />
+
+## Roadmap
+
+We are aiming to do a 1:1 feature map between GitHub and `Gogs`
+so that we can backup our entire organisation, all repos, issues, labels & PRs.
+
+We aren't there yet
+and we might not be for some time.
+The order in which we will be working 
+on fleshing out the features is:
+
+1. **Git Diff** - using the `Git` module to determine the changes made to a specific file
+  between two Git commits/hashes. This will allow us to visualize the changes made
+  and can therefore _derive_ the contents of a Pull Request 
+  without having the PR feature exposed via the Gogs API.
+  See: https://github.com/dwyl/gogs/issues/27
+2. **Issues**: https://github.com/gogs/docs-api/tree/master/Issues
+  + **Comments** - this is the core content of issues. 
+    We need to parse all the data and map it to the fields in `Gogs`.
+  + **Labels** - the primary metadata we use to categorize our issues, 
+    see: https://github.com/dwyl/labels
+  + **Milestones** - used to _group_ issues into batches, e.g. a "sprint" or "feature".
+3. **Repo Stats**: Stars, watchers, forks etc.
+4. **_Your_ Feature Request** Here! 
+Seriously, if you spot a gap in the list of available functions, 
+something you want/need to use `Gogs` in any a more advanced/custom way,
+please open an issue so we can discuss!
+
+
+<br />
 
 ## I'm _Stuck!_ 🤷
 
@@ -299,38 +442,38 @@ As always, if anything is unclear
 or you are stuck getting this working,
 please open an issue!
 [github.com/dwyl/gogs/issues](https://github.com/dwyl/gogs/issues/8)
-We're here to help!
+we're here to help!
 
 <br />
-
-## Running the Tests!
-
-By default, the tests run with "mocks". 
-
 
 <br />
 
 <hr />
 
-# ⚠️ Disclaimer! 
+# ⚠️ Disclaimer! ⚠️
 
 This package is provided "**as is**". 
-We make ***no guarantee/warranty*** that it _works_.
+We make ***no guarantee/warranty*** that it _works_. <br />
 We _cannot_ be held responsible
 for any undesirable effects of it's usage.
 e.g: if you use the [`Gogs.delete/1`](https://hexdocs.pm/gogs/Gogs.html#delete/1)
 it will _permanently/irrecoverably_ **`delete`** the repo. 
 Use it with caution!
 
-That being said,
+With the disclaimer out of the way,
+and your expectations clearly set,
+here are the facts: 
 We are using this package in "production".
 We rely on it daily and consider it 
 ["mission critical"](https://en.wikipedia.org/wiki/Mission_critical).
 It works for _us_ an and
-we have made every effort to document, test & _maintain_ it.
+we have made every effort to document, 
+test & _maintain_ it.
 If you want to use it, go for it!
-But please note that we cannot "support" your usage
+But please note that we cannot "_support_" your usage
 beyond answering questions on GitHub.
+And unless you have a commercial agreement with 
+[dwyl Ltd.]
 
 If you spot anything that can be improved,
 please open an 

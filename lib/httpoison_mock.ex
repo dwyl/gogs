@@ -71,12 +71,11 @@ defmodule Gogs.HTTPoisonMock do
       true ->
         @raw_response
       false ->
-        Logger.debug("Gogs.HTTPoisonMock.get/2 #{url}")
         repo_name = GogsHelpers.get_repo_name_from_url(url)
         response_body = 
           make_repo_create_post_response_body(repo_name)
           |> Jason.encode!()
-        {:ok, %{body: response_body}}
+        {:ok, %HTTPoison.Response{body: response_body, status_code: 200}}
     end
   end
 
@@ -90,7 +89,7 @@ defmodule Gogs.HTTPoisonMock do
     response_body = 
       make_repo_create_post_response_body(body_map.name)
       |> Jason.encode!()
-    {:ok, %{body: response_body}}
+    {:ok, %HTTPoison.Response{body: response_body, status_code: 200}}
   end
 
   @doc """
@@ -98,6 +97,10 @@ defmodule Gogs.HTTPoisonMock do
   Feel free refactor this if you can make it pretty. 
   """
   def delete(url) do
-    {:ok, %{body: Jason.encode!(%{deleted: List.first(String.split(url, "?"))})}}
+    Logger.debug("Gogs.HTTPoisonMock.delete/1 #{url}")
+    {:ok, %HTTPoison.Response{
+      body: Jason.encode!(%{deleted: List.first(String.split(url, "?"))}), 
+      status_code: 200
+    }}
   end
 end

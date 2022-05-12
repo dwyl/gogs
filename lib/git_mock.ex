@@ -19,20 +19,21 @@ defmodule Gogs.GitMock do
     iex> GitMock.clone("any-url-containing-the-word-error-to-trigger-failure")
     {:error, %Git.Error{message: "git clone error (mock)"}}
   """
-  @spec clone(String.t()) :: {:ok, %Git.Repository{}} | {:error, %Git.Error{}}
+  @spec clone(String.t()) :: {:ok, Git.Repository.t()} | {:error, Git.Error}
   def clone(url) do
     case Useful.typeof(url) do
       # e.g: ["ssh://git@gogs.dev/myorg/error-test.git", "tmp/test-repo"]
       # recurse using just the url (String) portion of the list:
       "list" ->
         url |> List.first() |> clone()
-      
+
       "binary" ->
         Logger.info("Gogs.GitMock.clone #{url}")
+
         if String.contains?(url, "error") do
           {:error, %Git.Error{message: "git clone error (mock)"}}
         else
-          {:ok, %Git.Repository{path: GogsHelpers.local_repo_path("test-repo")}}
+          {:ok, %Git.Repository{path: GogsHelpers.local_repo_path("test-org", "test-repo")}}
         end
     end
   end
@@ -45,7 +46,7 @@ defmodule Gogs.GitMock do
     iex> GitMock.push("my-repo")
     {:ok, "To ssh://gogs-server.fly.dev:10022/myorg/my-repo.git\n"}
   """
-  @spec push(%Git.Repository{}, [any]) :: {:ok, any}
+  @spec push(Git.Repository.t(), [any]) :: {:ok, any}
   def push(%Git.Repository{path: repo_path}, _args) do
     Logger.info("Gogs.GitMock.push #{repo_path}")
     repo_name = GogsHelpers.get_repo_name_from_url(repo_path <> ".git")
