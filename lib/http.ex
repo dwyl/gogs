@@ -10,9 +10,10 @@ defmodule GogsHttp do
 
   @access_token Envar.get("GOGS_ACCESS_TOKEN")
   # HTTP Headers don't change so hard-coded here:
+  @auth_header {"Authorization", "token #{@access_token}"}
   @headers [
     {"Accept", "application/json"},
-    {"Authorization", "token #{@access_token}"},
+    @auth_header,
     {"Content-Type", "application/json"}
   ]
   @mock Application.compile_env(:gogs, :mock)
@@ -69,8 +70,25 @@ defmodule GogsHttp do
   @spec get_raw(String.t()) :: {:ok, map} | {:error, any}
   def get_raw(url) do
     Logger.debug("GogsHttp.get_raw #{url}")
-    headers = [{"Authorization", "token #{@access_token}"}]
-    inject_poison().get(url, headers)
+    inject_poison().get(url, [@auth_header])
+  end
+
+  @doc """
+  `post_raw_html/2` accepts two arguments: `url` and `raw_markdown`. 
+  Makes an `HTTP POST` request to the specified `url`
+  passing in the `params` as the request body.
+  Does NOT attempt to parse the response body as JSON.
+  Auth Headers and Content-Type are implicit.
+  """
+  @spec post_raw_html(String.t(), String.t()) :: {:ok, String.t()} | {:error, any}
+  def post_raw_html(url, raw_markdown) do
+    Logger.debug("GogsHttp.post_raw #{url}")
+    # Logger.debug("raw_markdown: #{raw_markdown}")
+    headers = [
+      {"Accept", "text/html"},
+      @auth_header,
+    ]
+    inject_poison().post(url, raw_markdown, headers)
   end
 
   @doc """

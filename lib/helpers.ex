@@ -95,11 +95,15 @@ defmodule GogsHelpers do
   def local_repo_path(org, repo) do
     # coveralls-ignore-start
     if @mock do
-      Path.join([temp_dir(@git_dir), "test-repo"]) |> Path.expand()
+      if String.contains?(repo, "no-repo") do
+        # in branch test we need to simulate a full path not a test-repo one ...
+        Path.join([temp_dir(@git_dir), org, repo]) |> Path.expand()
+      else
+        Path.join([temp_dir(@git_dir), "test-repo"]) |> Path.expand()
+      end
     else
       Path.join([temp_dir(@git_dir), org, repo]) |> Path.expand()
     end
-
     # coveralls-ignore-stop
   end
 

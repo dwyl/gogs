@@ -61,7 +61,7 @@ defmodule Gogs do
   end
 
   @doc """
-  `remote_read_file/3` reads a file from the remote repo.
+  `remote_read_file/4` reads a file from the remote repo.
   Accepts 4 arguments: `org_name`, `repo_name`, `file_name` and `branch_name`.
   The 4<sup>th</sup> argument is *optional* and defaults to `"master"` 
   (the default branch for a repo hosted on `Gogs`).
@@ -80,6 +80,36 @@ defmodule Gogs do
     url = @api_base_url <> "repos/#{org_name}/#{repo_name}/raw/#{branch_name}/#{file_name}"
     Logger.debug("Gogs.remote_read_raw: #{url}")
     GogsHttp.get_raw(url)
+  end
+
+  @doc """
+  `remote_render_markdown_html/4` uses `Gog` built-in Markdown processor 
+  to render a Markdown Doc e.g. the `README.md` so you can easily use the HTML.
+  Accepts 4 arguments: `org_name`, `repo_name`, `file_name` and `branch_name`.
+  The 4<sup>th</sup> argument is *optional* and defaults to `"master"` 
+  (the default branch for a repo hosted on `Gogs`).
+  Makes a `GET` request to the remote `Gogs` instance as defined 
+  by the environment variable `GOGS_URL`.
+  Returns `{:ok, %HTTPoison.Response{ body: response_body}}`
+  Uses REST API Endpoint:
+  ```sh
+  POST /markdown/raw
+  ```
+  Ref: https://github.com/dwyl/gogs/issues/23
+  """
+  @spec remote_render_markdown_html(String.t(), String.t(), String.t(), String.t()) ::
+          {:ok, map} | {:error, any}
+  def remote_render_markdown_html(org_name, repo_name, file_name, branch_name \\ "master") do
+    # First retrieve the Raw Markdown Text we want to render:
+    {:ok, %HTTPoison.Response{body: raw_markdown}} =
+      Gogs.remote_read_raw(org_name, repo_name, file_name, branch_name)
+    url = @api_base_url <> "markdown/raw"
+    Logger.info("remote_render_markdown_html/4 #{url}")
+    # temp_context = "https://github.com/gogs/gogs"
+    # Ask Gogs to redner the Raw Markdown to HTML:
+    GogsHttp.post_raw_html(url, raw_markdown)
+    # I agree, this is clunky ... We wont use it for latency-sensitive apps.
+    # But it could be useful for a quick/easy Static Site / Blog App. 💭
   end
 
   @doc """
