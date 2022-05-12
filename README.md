@@ -89,7 +89,7 @@ by adding `gogs` to the list of dependencies in your `mix.exs` file:
 ```elixir
 def deps do
   [
-    {:gogs, "~> 0.9.0"}
+    {:gogs, "~> 1.0.0"}
   ]
 end
 ```
@@ -351,16 +351,16 @@ You will see output similar to the following:
 
 ```sh
 Finished in 0.1 seconds (0.1s async, 0.00s sync)
-3 doctests, 25 tests, 0 failures
+3 doctests, 27 tests, 0 failures
 
-Randomized with seed 158554
+Randomized with seed 715101
 ----------------
 COV    FILE                                        LINES RELEVANT   MISSED
 100.0% lib/git_mock.ex                                55        7        0
-100.0% lib/gogs.ex                                   182       37        0
+100.0% lib/gogs.ex                                   212       41        0
 100.0% lib/helpers.ex                                131       17        0
-100.0% lib/http.ex                                   101       16        0
-100.0% lib/httpoison_mock.ex                         106       15        0
+100.0% lib/http.ex                                   119       18        0
+100.0% lib/httpoison_mock.ex                         124       20        0
 [TOTAL] 100.0%
 ----------------
 ```
@@ -381,22 +381,22 @@ You should see the same output:
 
 ```sh
 Finished in 5.5 seconds (5.5s async, 0.00s sync)
-3 doctests, 25 tests, 0 failures
+3 doctests, 27 tests, 0 failures
 
-Randomized with seed 5018
+Randomized with seed 388372
 ----------------
 COV    FILE                                        LINES RELEVANT   MISSED
 100.0% lib/git_mock.ex                                55        7        0
-100.0% lib/gogs.ex                                   182       37        0
+100.0% lib/gogs.ex                                   212       41        0
 100.0% lib/helpers.ex                                131       17        0
-100.0% lib/http.ex                                   101       16        0
-100.0% lib/httpoison_mock.ex                         106       15        0
+100.0% lib/http.ex                                   119       18        0
+100.0% lib/httpoison_mock.ex                         124       20        0
 [TOTAL] 100.0%
 ----------------
 ```
 
-The only difference is the time it takes to run the test suite. 
-The outcome (all tests passing and 100% coverage) should be identical.
+The only difference is the ***time*** it takes to run the test suite. <br />
+The outcome (all tests passing and **100% coverage**) should be ***identical***.
 
 If you add a feature to the package, 
 please ensure that the tests pass 

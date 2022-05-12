@@ -29,4 +29,11 @@ defmodule HttPoisonMockTest do
     {:ok, %HTTPoison.Response{status_code: status}} = Gogs.HTTPoisonMock.delete("any?url")
     assert status == 200
   end
+
+  test "Gogs.HTTPoisonMock.post when url is markdown/raw should return status 200" do
+    {:ok, %HTTPoison.Response{status_code: status, body: body}} = 
+      Gogs.HTTPoisonMock.post("markdown/raw", "any", "any")
+    assert status == 200
+    assert body == Gogs.HTTPoisonMock.raw_html()
+  end
 end

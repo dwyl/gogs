@@ -68,7 +68,7 @@ defmodule GogsTest do
     {:ok, %HTTPoison.Response{body: response_body}} =
       Gogs.remote_render_markdown_html(org_name, repo_name, file_name)
 
-    IO.inspect(response_body)
+    # IO.inspect(response_body)
     assert Gogs.HTTPoisonMock.raw_html() == response_body
   end
 

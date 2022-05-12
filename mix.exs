@@ -6,7 +6,7 @@ defmodule Gogs.MixProject do
   def project do
     [
       app: :gogs,
-      version: "0.9.0",
+      version: "1.0.0",
       elixir: @elixir_requirement,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -20,7 +20,7 @@ defmodule Gogs.MixProject do
       aliases: aliases(),
       deps: deps(),
       package: package(),
-      description: "Interface with a Gogs (Git) Server"
+      description: "Simple Elixir interface with a Gogs (Git) Server"
     ]
   end
 
@@ -39,6 +39,7 @@ defmodule Gogs.MixProject do
 
       # Parse JSON data: github.com/michalmuskala/jason
       {:jason, "~> 1.3.0"},
+      
       # Check environment variables: github.com/dwyl/envar
       {:envar, "~> 1.0.5"},
 

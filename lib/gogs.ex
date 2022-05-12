@@ -101,14 +101,13 @@ defmodule Gogs do
           {:ok, map} | {:error, any}
   def remote_render_markdown_html(org_name, repo_name, file_name, branch_name \\ "master") do
     # First retrieve the Raw Markdown Text we want to render:
-    {:ok, %HTTPoison.Response{body: response_body}} =
-      Gogs.remote_read_raw(org_name, repo_name, file_name)
-    IO.inspect(response_body, label: "response_body")
+    {:ok, %HTTPoison.Response{body: raw_markdown}} =
+      Gogs.remote_read_raw(org_name, repo_name, file_name, branch_name)
     url = @api_base_url <> "markdown/raw"
     Logger.info("remote_render_markdown_html/4 #{url}")
     # temp_context = "https://github.com/gogs/gogs"
     # Ask Gogs to redner the Raw Markdown to HTML:
-    GogsHttp.post_raw_html(url, %{text: response_body})
+    GogsHttp.post_raw_html(url, raw_markdown)
     # I agree, this is clunky ... We wont use it for latency-sensitive apps.
     # But it could be useful for a quick/easy Static Site / Blog App. 💭
   end

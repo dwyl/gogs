@@ -83,10 +83,10 @@ defmodule Gogs.HTTPoisonMock do
   `post/3` mocks the HTTPoison.post/3 function when parameters match test vars.
   Feel free refactor this if you can make it pretty. 
   """
-  def post(url, body, _headers) do
+  def post(url, body, headers) do
     Logger.debug("Gogs.HTTPoisonMock.post/3 #{url}")
     if String.contains?(url, "markdown/raw") do
-      post_raw_html(url, body, _headers)
+      post_raw_html(url, body, headers)
     else
       body_map = Jason.decode!(body) |> Useful.atomize_map_keys()
       response_body = 
@@ -97,7 +97,7 @@ defmodule Gogs.HTTPoisonMock do
   end
 
   def raw_html do
-    "<p>{&#34;text&#34;:&#34;# public-repo</p>\n\n<p>please don&#39;t update this. the tests read it.&#34;}</p>\n"
+    "<h1>public-repo</h1>\n\n<p>please don&#39;t update this. the tests read it.</p>\n"
   end
 
   @doc """
