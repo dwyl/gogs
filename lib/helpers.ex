@@ -33,7 +33,7 @@ defmodule GogsHelpers do
     "git@github.com:"
 
   """
-  @spec make_url(String.t(), integer()) :: String.t()
+  @spec make_url(String.t(), integer() | nil) :: String.t()
   def make_url(git_url, port \\ 0)
   def make_url(git_url, port) when port > 0, do: "ssh://git@#{git_url}:#{port}/"
   def make_url(git_url, _port), do: "git@#{git_url}:"
@@ -104,6 +104,7 @@ defmodule GogsHelpers do
     else
       Path.join([temp_dir(@git_dir), org, repo]) |> Path.expand()
     end
+
     # coveralls-ignore-stop
   end
 

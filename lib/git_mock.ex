@@ -19,7 +19,7 @@ defmodule Gogs.GitMock do
     iex> GitMock.clone("any-url-containing-the-word-error-to-trigger-failure")
     {:error, %Git.Error{message: "git clone error (mock)"}}
   """
-  @spec clone(String.t()) :: {:ok, Git.Repository.t()} | {:error, Git.Error}
+  @spec clone(String.t() | list(String.t())) :: {:ok, Git.Repository.t()} | {:error, Git.Error}
   def clone(url) do
     case Useful.typeof(url) do
       # e.g: ["ssh://git@gogs.dev/myorg/error-test.git", "tmp/test-repo"]
