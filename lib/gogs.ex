@@ -103,6 +103,7 @@ defmodule Gogs do
     # First retrieve the Raw Markdown Text we want to render:
     {:ok, %HTTPoison.Response{body: raw_markdown}} =
       Gogs.remote_read_raw(org_name, repo_name, file_name, branch_name)
+
     url = @api_base_url <> "markdown/raw"
     Logger.info("remote_render_markdown_html/4 #{url}")
     # temp_context = "https://github.com/gogs/gogs"
@@ -128,8 +129,8 @@ defmodule Gogs do
         # Logger.info("Cloned repo: #{git_repo_url} to: #{path}")
         path
 
-      {:error, %Git.Error{message: message}} ->
-        Logger.error("Gogs.clone/1 tried to clone #{git_repo_url}, got: #{message}")
+      {:error, git_err} ->
+        Logger.error("Gogs.clone/1 tried to clone #{git_repo_url}, got: #{git_err.message}")
         local_path
     end
   end
@@ -144,9 +145,12 @@ defmodule Gogs do
       {:ok, res} ->
         {:ok, res}
 
-      {:error, %Git.Error{message: message}} ->
-        Logger.error("Git.checkout error: #{message}, #{repo_name} (should not thow error)")
-        {:error, message}
+      {:error, git_err} ->
+        Logger.error(
+          "Git.checkout error: #{git_err.message}, #{repo_name} (should not thow error)"
+        )
+
+        {:error, git_err.message}
     end
   end
 
