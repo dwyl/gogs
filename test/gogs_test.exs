@@ -2,7 +2,7 @@ defmodule GogsTest do
   use ExUnit.Case, async: true
   require Logger
   doctest Gogs
-  # @github_url "https://github.com/"
+  # Let's do this!! 🚀 
   @cwd File.cwd!()
   @git_dir Envar.get("GIT_TEMP_DIR_PATH", @cwd)
   @mock Application.compile_env(:gogs, :mock)
@@ -13,19 +13,12 @@ defmodule GogsTest do
     :crypto.strong_rand_bytes(7) |> :binary.decode_unsigned() |> Integer.to_string()
   end
 
-  # Cleanup helper functions
-  defp delete_local_directory(dirname) do
-    path = Path.join(GogsHelpers.temp_dir(@git_dir), dirname)
-    Logger.debug("GogsTest.delete_local_directory: #{path}")
-    File.rm_rf(path)
-  end
-
   # Create a test repo with the name "test-repo123"
   defp test_repo() do
     "test-repo" <> random_postive_int_str()
   end
 
-  def create_test_git_repo(org_name) do
+  defp create_test_git_repo(org_name) do
     repo_name = test_repo()
     Gogs.remote_repo_create(org_name, repo_name, false)
     git_repo_url = GogsHelpers.remote_url_ssh(org_name, repo_name)
@@ -33,6 +26,18 @@ defmodule GogsTest do
     Gogs.clone(git_repo_url)
 
     repo_name
+  end
+
+  # Cleanup helper functions
+  defp delete_local_directory(repo_name) do
+    path = Path.join(GogsHelpers.temp_dir(@git_dir), repo_name)
+    Logger.debug("GogsTest.delete_local_directory: #{path}")
+    File.rm_rf(path)
+  end
+
+  defp teardown_local_and_remote(org_name, repo_name) do
+    delete_local_directory(repo_name)
+    Gogs.remote_repo_delete(org_name, repo_name)
   end
 
   test "remote_repo_create/3 creates a new repo on the Gogs server" do
@@ -45,7 +50,7 @@ defmodule GogsTest do
     assert response.name == mock_response.name
 
     # Cleanup:
-    Gogs.remote_repo_delete(org_name, repo_name)
+    teardown_local_and_remote(org_name, repo_name)
   end
 
   test "Gogs.remote_read_raw/4 retrieves the contents of the README.md file" do
@@ -84,7 +89,7 @@ defmodule GogsTest do
     path2 = Gogs.clone(git_repo_url)
     assert path == path2
 
-    # Clean up:
+    # Clean up (but don't delete the remote repo!!)
     delete_local_directory("public-repo")
   end
   
@@ -111,8 +116,7 @@ defmodule GogsTest do
     # assert String.contains?(err, "'draft'")
 
     # Cleanup!
-    Gogs.remote_repo_delete(org_name, repo_name)
-    delete_local_directory(repo_name)
+    teardown_local_and_remote(org_name, repo_name)
     # Test error branch once the local repo has been deleted:
     Git.branch(GogsHelpers.local_git_repo(org_name, repo_name), ~w(-d draft))
   end
@@ -140,8 +144,7 @@ defmodule GogsTest do
     assert {:ok, text} == Gogs.local_file_read(org_name, repo_name, file_name)
 
     # Cleanup!
-    Gogs.remote_repo_delete("myorg", repo_name)
-    delete_local_directory(repo_name)
+    teardown_local_and_remote(org_name, repo_name)
   end
 
   test "commit/2 creates a commit in the repo" do
@@ -163,8 +166,7 @@ defmodule GogsTest do
     assert String.contains?(msg, "1 file changed, 1 insertion(+)")
 
     # Cleanup!
-    Gogs.remote_repo_delete("myorg", repo_name)
-    delete_local_directory(repo_name)
+    teardown_local_and_remote(org_name, repo_name)
   end
 
   test "Gogs.push/2 pushes the commit to the remote repo" do
@@ -195,13 +197,12 @@ defmodule GogsTest do
 
     if @mock do
       assert response_body ==
-               "# public-repo\n\nplease don't update this. the tests read it."
+        "# public-repo\n\nplease don't update this. the tests read it."
     else
       assert response_body == text
     end
 
     # Cleanup!
-    Gogs.remote_repo_delete(org_name, repo_name)
-    delete_local_directory(repo_name)
+    teardown_local_and_remote(org_name, repo_name)
   end
 end
