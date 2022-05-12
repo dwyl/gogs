@@ -116,7 +116,7 @@ defmodule Gogs do
   `clone/1` clones a remote git repository based on `git_repo_url`
   returns the path of the _local_ copy of the repository.
   """
-  @spec clone(String.t()) :: {:ok, any} | {:error, any}
+  @spec clone(String.t()) :: String.t()
   def clone(git_repo_url) do
     org_name = get_org_name_from_url(git_repo_url)
     repo_name = get_repo_name_from_url(git_repo_url)
@@ -154,7 +154,7 @@ defmodule Gogs do
   `local_file_read/3` reads the raw text from the `file_name`,
   params: `org_name`, `repo_name` & `file_name`
   """
-  @spec local_file_read(String.t(), String.t(), String.t()) :: String.t()
+  @spec local_file_read(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
   def local_file_read(org_name, repo_name, file_name) do
     file_path = Path.join([local_repo_path(org_name, repo_name), file_name])
     File.read(file_path)
