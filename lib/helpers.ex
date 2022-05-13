@@ -5,6 +5,7 @@ defmodule GogsHelpers do
   https://github.com/dwyl/gogs/issues
   """
   require Logger
+  # @env_required ~w/GOGS_URL GOGS_SSH_PORT GOGS_ACCESS_TOKEN/
   @cwd File.cwd!()
   @git_dir Envar.get("GIT_TEMP_DIR_PATH", @cwd)
   @mock Application.compile_env(:gogs, :mock)

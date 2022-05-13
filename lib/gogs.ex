@@ -15,7 +15,6 @@ defmodule Gogs do
   import GogsHelpers
   require Logger
 
-  @api_base_url GogsHelpers.api_base_url()
   @mock Application.compile_env(:gogs, :mock)
   Logger.debug("Gogs > config :gogs, mock: #{to_string(@mock)}")
   @git (@mock && Gogs.GitMock) || Git
@@ -35,7 +34,7 @@ defmodule Gogs do
   """
   @spec remote_repo_create(String.t(), String.t(), boolean) :: {:ok, map} | {:error, any}
   def remote_repo_create(org_name, repo_name, private \\ false) do
-    url = @api_base_url <> "org/#{org_name}/repos"
+    url = api_base_url() <> "org/#{org_name}/repos"
     Logger.info("remote_repo_create api endpoint: #{url}")
 
     params = %{
@@ -55,7 +54,7 @@ defmodule Gogs do
   """
   @spec remote_repo_delete(String.t(), String.t()) :: {:ok, map} | {:error, any}
   def remote_repo_delete(org_name, repo_name) do
-    url = @api_base_url <> "repos/#{org_name}/#{repo_name}"
+    url = api_base_url() <> "repos/#{org_name}/#{repo_name}"
     Logger.info("remote_repo_delete: #{url}")
     GogsHttp.delete(url)
   end
@@ -77,7 +76,7 @@ defmodule Gogs do
   @spec remote_read_raw(String.t(), String.t(), String.t(), String.t()) ::
           {:ok, map} | {:error, any}
   def remote_read_raw(org_name, repo_name, file_name, branch_name \\ "master") do
-    url = @api_base_url <> "repos/#{org_name}/#{repo_name}/raw/#{branch_name}/#{file_name}"
+    url = api_base_url() <> "repos/#{org_name}/#{repo_name}/raw/#{branch_name}/#{file_name}"
     Logger.debug("Gogs.remote_read_raw: #{url}")
     GogsHttp.get_raw(url)
   end
@@ -104,7 +103,7 @@ defmodule Gogs do
     {:ok, %HTTPoison.Response{body: raw_markdown}} =
       Gogs.remote_read_raw(org_name, repo_name, file_name, branch_name)
 
-    url = @api_base_url <> "markdown/raw"
+    url = api_base_url() <> "markdown/raw"
     Logger.info("remote_render_markdown_html/4 #{url}")
     # temp_context = "https://github.com/gogs/gogs"
     # Ask Gogs to redner the Raw Markdown to HTML:

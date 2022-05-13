@@ -89,7 +89,7 @@ by adding `gogs` to the list of dependencies in your `mix.exs` file:
 ```elixir
 def deps do
   [
-    {:gogs, "~> 1.0.0"}
+    {:gogs, "~> 1.0.2"}
   ]
 end
 ```
