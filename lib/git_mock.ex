@@ -33,7 +33,7 @@ defmodule Gogs.GitMock do
         if String.contains?(url, "error") do
           {:error, %Git.Error{message: "git clone error (mock)"}}
         else
-          {:ok, %Git.Repository{path: GogsHelpers.local_repo_path("test-org", "test-repo")}}
+          {:ok, %Git.Repository{path: Gogs.Helpers.local_repo_path("test-org", "test-repo")}}
         end
     end
   end
@@ -49,7 +49,7 @@ defmodule Gogs.GitMock do
   @spec push(Git.Repository.t(), [any]) :: {:ok, any}
   def push(%Git.Repository{path: repo_path}, _args) do
     Logger.info("Gogs.GitMock.push #{repo_path}")
-    repo_name = GogsHelpers.get_repo_name_from_url(repo_path <> ".git")
+    repo_name = Gogs.Helpers.get_repo_name_from_url(repo_path <> ".git")
     {:ok, "To ssh://gogs-server.fly.dev:10022/myorg/#{repo_name}.git\n"}
   end
 end

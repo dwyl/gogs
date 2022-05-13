@@ -247,7 +247,7 @@ Gogs.remote_repo_create(org_name, repo_name, private)
 ### 2. _Clone_ the Repo
 
 ```elixir
-git_repo_url = GogsHelpers.remote_url_ssh(org_name, repo_name)
+git_repo_url = Gogs.Helpers.remote_url_ssh(org_name, repo_name)
 Gogs.clone(git_repo_url)
 ```
 

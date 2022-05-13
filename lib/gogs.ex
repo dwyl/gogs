@@ -12,7 +12,7 @@ defmodule Gogs do
   If anything is unclear, please open an issue: 
   [github.com/dwyl/**gogs/issues**](https://github.com/dwyl/gogs/issues)
   """
-  import GogsHelpers
+  import Gogs.Helpers
   require Logger
 
   @mock Application.compile_env(:gogs, :mock)
@@ -44,7 +44,7 @@ defmodule Gogs do
       readme: repo_name
     }
 
-    GogsHttp.post(url, params)
+    Gogs.Http.post(url, params)
   end
 
   @doc """
@@ -56,7 +56,7 @@ defmodule Gogs do
   def remote_repo_delete(org_name, repo_name) do
     url = api_base_url() <> "repos/#{org_name}/#{repo_name}"
     Logger.info("remote_repo_delete: #{url}")
-    GogsHttp.delete(url)
+    Gogs.Http.delete(url)
   end
 
   @doc """
@@ -78,7 +78,7 @@ defmodule Gogs do
   def remote_read_raw(org_name, repo_name, file_name, branch_name \\ "master") do
     url = api_base_url() <> "repos/#{org_name}/#{repo_name}/raw/#{branch_name}/#{file_name}"
     Logger.debug("Gogs.remote_read_raw: #{url}")
-    GogsHttp.get_raw(url)
+    Gogs.Http.get_raw(url)
   end
 
   @doc """
@@ -109,7 +109,7 @@ defmodule Gogs do
     Logger.info("remote_render_markdown_html/4 #{url}")
     # temp_context = "https://github.com/gogs/gogs"
     # Ask Gogs to redner the Raw Markdown to HTML:
-    GogsHttp.post_raw_html(url, raw_markdown)
+    Gogs.Http.post_raw_html(url, raw_markdown)
     # I agree, this is clunky ... We wont use it for latency-sensitive apps.
     # But it could be useful for a quick/easy Static Site / Blog App. 💭
   end

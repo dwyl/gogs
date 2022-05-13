@@ -1,4 +1,4 @@
-defmodule GogsHttp do
+defmodule Gogs.Http do
   @moduledoc """
   Documentation for the `HTTP` "verb" functions.
   Should be self-explanatory.
@@ -8,17 +8,25 @@ defmodule GogsHttp do
   """
   require Logger
 
-  @access_token Envar.get("GOGS_ACCESS_TOKEN")
-  # HTTP Headers don't change so hard-coded here:
-  @auth_header {"Authorization", "token #{@access_token}"}
-  @headers [
-    {"Accept", "application/json"},
-    @auth_header,
-    {"Content-Type", "application/json"}
-  ]
   @mock Application.compile_env(:gogs, :mock)
   Logger.debug("GogsHttp > config :gogs, mock: #{to_string(@mock)}")
   @httpoison (@mock && Gogs.HTTPoisonMock) || HTTPoison
+
+  defp access_token do
+    Envar.get("GOGS_ACCESS_TOKEN")
+  end
+
+  defp auth_header do
+    {"Authorization", "token #{access_token()}"}
+  end
+
+  defp json_headers do
+    [
+      {"Accept", "application/json"},
+      auth_header(),
+      {"Content-Type", "application/json"}
+    ]
+  end
 
   @doc """
   `inject_poison/0` injects a TestDouble of HTTPoison in Test.
@@ -55,7 +63,7 @@ defmodule GogsHttp do
   @spec get(String.t()) :: {:ok, map} | {:error, any}
   def get(url) do
     Logger.debug("GogsHttp.get #{url}")
-    inject_poison().get(url, @headers)
+    inject_poison().get(url, json_headers())
     |> parse_body_response()
   end
 
@@ -70,7 +78,7 @@ defmodule GogsHttp do
   @spec get_raw(String.t()) :: {:ok, map} | {:error, any}
   def get_raw(url) do
     Logger.debug("GogsHttp.get_raw #{url}")
-    inject_poison().get(url, [@auth_header])
+    inject_poison().get(url, [auth_header()])
   end
 
   @doc """
@@ -86,7 +94,7 @@ defmodule GogsHttp do
     # Logger.debug("raw_markdown: #{raw_markdown}")
     headers = [
       {"Accept", "text/html"},
-      @auth_header,
+      auth_header(),
     ]
     inject_poison().post(url, raw_markdown, headers)
   end
@@ -101,7 +109,7 @@ defmodule GogsHttp do
   def post(url, params \\ %{}) do
     Logger.debug("GogsHttp.post #{url}")
     body = Jason.encode!(params)
-    inject_poison().post(url, body, @headers)
+    inject_poison().post(url, body, json_headers())
     |> parse_body_response()
   end
 
@@ -112,7 +120,7 @@ defmodule GogsHttp do
   @spec delete(String.t()) :: {:ok, map} | {:error, any}
   def delete(url) do
     Logger.debug("GogsHttp.delete #{url}")
-    inject_poison().delete(url <> "?token=#{@access_token}")
+    inject_poison().delete(url <> "?token=#{access_token()}")
     |> parse_body_response()
   end
 end
