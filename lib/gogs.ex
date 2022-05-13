@@ -102,6 +102,8 @@ defmodule Gogs do
     # First retrieve the Raw Markdown Text we want to render:
     {:ok, %HTTPoison.Response{body: raw_markdown}} =
       Gogs.remote_read_raw(org_name, repo_name, file_name, branch_name)
+    
+    Logger.debug("raw_markdown: #{raw_markdown}")
 
     url = api_base_url() <> "markdown/raw"
     Logger.info("remote_render_markdown_html/4 #{url}")
