@@ -71,7 +71,7 @@ defmodule Gogs.HTTPoisonMock do
       true ->
         @raw_response
       false ->
-        repo_name = GogsHelpers.get_repo_name_from_url(url)
+        repo_name = Gogs.Helpers.get_repo_name_from_url(url)
         response_body = 
           make_repo_create_post_response_body(repo_name)
           |> Jason.encode!()

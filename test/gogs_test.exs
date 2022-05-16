@@ -21,7 +21,7 @@ defmodule GogsTest do
   defp create_test_git_repo(org_name) do
     repo_name = test_repo()
     Gogs.remote_repo_create(org_name, repo_name, false)
-    git_repo_url = GogsHelpers.remote_url_ssh(org_name, repo_name)
+    git_repo_url = Gogs.Helpers.remote_url_ssh(org_name, repo_name)
     # Logger.debug("create_test_git_repo/1 git_repo_url: #{git_repo_url}")
     Gogs.clone(git_repo_url)
 
@@ -30,7 +30,7 @@ defmodule GogsTest do
 
   # Cleanup helper functions
   defp delete_local_directory(repo_name) do
-    path = Path.join(GogsHelpers.temp_dir(@git_dir), repo_name)
+    path = Path.join(Gogs.Helpers.temp_dir(@git_dir), repo_name)
     Logger.debug("GogsTest.delete_local_directory: #{path}")
     File.rm_rf(path)
   end
@@ -80,10 +80,10 @@ defmodule GogsTest do
   test "Gogs.clone clones a known remote repository Gogs on Fly.io" do
     org = "nelsonic"
     repo = "public-repo"
-    git_repo_url = GogsHelpers.remote_url_ssh(org, repo)
+    git_repo_url = Gogs.Helpers.remote_url_ssh(org, repo)
 
     path = Gogs.clone(git_repo_url)
-    # assert path == GogsHelpers.local_repo_path(repo)
+    # assert path == Gogs.Helpers.local_repo_path(repo)
 
     # Attempt to clone it a second time to test the :error branch:
     path2 = Gogs.clone(git_repo_url)
@@ -96,17 +96,17 @@ defmodule GogsTest do
   test "Gogs.clone error (simulate unhappy path)" do
     repo = "error"
     org = "myorg"
-    git_repo_url = GogsHelpers.remote_url_ssh(org, repo)
+    git_repo_url = Gogs.Helpers.remote_url_ssh(org, repo)
     path = Gogs.clone(git_repo_url)
-    assert path == GogsHelpers.local_repo_path(org, repo)
+    assert path == Gogs.Helpers.local_repo_path(org, repo)
   end
 
   test "local_branch_create/1 creates a new branch on the localhost" do
     org_name = "myorg"
     repo_name = create_test_git_repo(org_name)
     # # delete draft branch if exists:
-    Git.branch(GogsHelpers.local_git_repo(org_name, repo_name), ["-m", repo_name])
-    Git.branch(GogsHelpers.local_git_repo(org_name, repo_name), ~w(-d draft))
+    Git.branch(Gogs.Helpers.local_git_repo(org_name, repo_name), ["-m", repo_name])
+    Git.branch(Gogs.Helpers.local_git_repo(org_name, repo_name), ~w(-d draft))
 
     {:ok, res} = Gogs.local_branch_create(org_name, repo_name, "draft")
     assert res == "Switched to a new branch 'draft'\n"
@@ -150,7 +150,7 @@ defmodule GogsTest do
              Gogs.local_file_write_text(org_name, repo_name, file_name, "text #{repo_name}")
 
     # Confirm the text was written to the file:
-    file_path = Path.join([GogsHelpers.local_repo_path(org_name, repo_name), file_name])
+    file_path = Path.join([Gogs.Helpers.local_repo_path(org_name, repo_name), file_name])
     assert {:ok, "text #{repo_name}"} == File.read(file_path)
 
     {:ok, msg} =
@@ -173,7 +173,7 @@ defmodule GogsTest do
              Gogs.local_file_write_text(org_name, repo_name, file_name, text)
 
     # Confirm the text was written to the file:
-    file_path = Path.join([GogsHelpers.local_repo_path(org_name, repo_name), file_name])
+    file_path = Path.join([Gogs.Helpers.local_repo_path(org_name, repo_name), file_name])
     assert {:ok, "text #{repo_name}"} == File.read(file_path)
 
     # Commit the updated text:

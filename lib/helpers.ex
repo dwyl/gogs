@@ -1,10 +1,11 @@
-defmodule GogsHelpers do
+defmodule Gogs.Helpers do
   @moduledoc """
   Helper functions that can be unit tested independently of the main functions.
   If you spot any way to make these better, please share:
   https://github.com/dwyl/gogs/issues
   """
   require Logger
+  # @env_required ~w/GOGS_URL GOGS_SSH_PORT GOGS_ACCESS_TOKEN/
   @cwd File.cwd!()
   @git_dir Envar.get("GIT_TEMP_DIR_PATH", @cwd)
   @mock Application.compile_env(:gogs, :mock)
@@ -13,7 +14,7 @@ defmodule GogsHelpers do
   `api_base_url/0` returns the `Gogs` Server REST API url for API requests.
 
   ## Examples
-    iex> GogsHelpers.api_base_url()
+    iex> Gogs.Helpers.api_base_url()
     "https://gogs-server.fly.dev/api/v1/"
   """
   @spec api_base_url() :: String.t()
@@ -26,10 +27,10 @@ defmodule GogsHelpers do
   If the `port` is set it will be a custom Gogs instance.
 
   ## Examples
-    iex> GogsHelpers.make_url("gogs-server.fly.dev", "10022")
+    iex> Gogs.Helpers.make_url("gogs-server.fly.dev", "10022")
     "ssh://git@gogs-server.fly.dev:10022/"
 
-    iex> GogsHelpers.make_url("github.com")
+    iex> Gogs.Helpers.make_url("github.com")
     "git@github.com:"
 
   """
@@ -53,7 +54,7 @@ defmodule GogsHelpers do
   def remote_url_ssh(org, repo) do
     url = Envar.get("GOGS_URL")
     port = Envar.get("GOGS_SSH_PORT")
-    git_url = GogsHelpers.make_url(url, port)
+    git_url = Gogs.Helpers.make_url(url, port)
     remote_url(git_url, org, repo)
   end
 
