@@ -38,7 +38,7 @@ defmodule Gogs.MixProject do
       {:httpoison, "~> 1.8.0"},
 
       # Parse JSON data: github.com/michalmuskala/jason
-      {:jason, "~> 1.3.0"},
+      {:jason, "~> 1.4.0"},
 
       # Check environment variables: github.com/dwyl/envar
       {:envar, "~> 1.0.8"},
