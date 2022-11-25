@@ -41,7 +41,7 @@ defmodule Gogs.MixProject do
       {:jason, "~> 1.4.0"},
 
       # Check environment variables: github.com/dwyl/envar
-      {:envar, "~> 1.0.8"},
+      {:envar, "~> 1.1.0"},
 
       # Git interface: github.com/danhper/elixir-git-cli
       {:git_cli, "~> 0.3"},
