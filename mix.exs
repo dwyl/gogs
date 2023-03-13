@@ -35,7 +35,7 @@ defmodule Gogs.MixProject do
   defp deps do
     [
       # Make HTTP Requests: github.com/edgurgel/httpoison
-      {:httpoison, "~> 2.0.0"},
+      {:httpoison, "~> 2.1.0"},
 
       # Parse JSON data: github.com/michalmuskala/jason
       {:jason, "~> 1.4.0"},
