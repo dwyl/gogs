@@ -50,7 +50,7 @@ defmodule Gogs.MixProject do
       {:useful, "~> 1.11.0"},
 
       # Check test coverage: github.com/parroty/excoveralls
-      {:excoveralls, "~> 0.16.0", only: :test},
+      {:excoveralls, "~> 0.17.0", only: :test},
 
       # Create Documentation for publishing Hex.docs:
       {:ex_doc, "~> 0.28", only: :dev},
