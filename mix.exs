@@ -47,7 +47,7 @@ defmodule Gogs.MixProject do
       {:git_cli, "~> 0.3"},
 
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.12.0"},
+      {:useful, "~> 1.12.1"},
 
       # Check test coverage: github.com/parroty/excoveralls
       {:excoveralls, "~> 0.17.0", only: :test},
